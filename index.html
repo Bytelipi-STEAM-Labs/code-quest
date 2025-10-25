@@ -41,6 +41,26 @@
         #code-editor {
             caret-color: #f472b6;
         }
+        /* New styles for walls and targets */
+        .wall {
+            background-color: #7f1d1d; /* dark red */
+            border: 2px solid #f87171; /* light red border */
+            position: absolute;
+            box-shadow: 0 0 10px #000;
+        }
+        #target {
+            position: absolute;
+            font-size: 2.5rem; /* 40px */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: spin 2s linear infinite;
+            filter: drop-shadow(0 0 5px #facc15);
+        }
+        @keyframes spin {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white h-screen flex flex-col p-4 gap-4">
@@ -63,7 +83,7 @@
             <div class="flex-1 p-4 border-t-2 border-gray-600 bg-gray-800/50 flex flex-col min-h-0 custom-scrollbar overflow-y-auto">
                  <h3 id="instruction-title" class="font-game text-md text-cyan-400 mb-2">Select a Mission!</h3>
                  <div id="instruction-text" class="text-gray-300 mb-4 pr-2 flex-grow">
-                    Welcome, Coder! Choose a mission from the list to get started. Your instructions will appear here. Good luck!
+                   Welcome, Coder! Choose a mission from the list to get started. Your instructions will appear here. Good luck!
                  </div>
                  <h3 class="font-game text-md text-yellow-300 border-t-2 border-gray-700 pt-4 mt-4">Available Commands</h3>
                  <div id="command-list" class="pt-4 space-y-2">
@@ -80,6 +100,14 @@
                     🤖
                 </div>
                 <div id="character-speech" class="absolute hidden bg-white text-black p-2 rounded-lg text-sm" style="transform: translate(-50%, -120%);"></div>
+                
+                <!-- New Game Elements -->
+                <div id="target" style="left: 200px; top: 150px; display: none;">🪙</div>
+                
+                <div id="walls-container">
+                    <!-- Walls will be dynamically added here for certain lessons -->
+                </div>
+
             </div>
         </div>
 
@@ -92,7 +120,11 @@
 // Select a mission from the left panel to get started.
 // Your code goes here.
 </textarea>
-                <button id="run-button" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 font-game text-lg transition-colors">RUN CODE</button>
+                <!-- Button container -->
+                <div class="flex">
+                    <button id="run-button" class="w-1/2 py-3 bg-indigo-600 hover:bg-indigo-700 font-game text-lg transition-colors">RUN CODE</button>
+                    <button id="reset-button" class="w-1/2 py-3 bg-red-600 hover:bg-red-700 font-game text-lg transition-colors">RESET</button>
+                </div>
             </div>
             <div class="flex flex-col border-t-2 border-gray-600" style="height: 35%;">
                 <!-- Debugger -->
@@ -113,6 +145,16 @@
         </div>
     </main>
 
+    <!-- Input Modal (hidden by default) -->
+    <div id="input-modal" class="absolute inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-700 p-6 rounded-lg shadow-xl w-full max-w-md mx-4">
+            <p id="input-prompt" class="text-lg text-cyan-400 mb-4">Prompt text goes here</p>
+            <input id="input-field" type="text" class="w-full p-2 rounded bg-gray-900 text-white font-code focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <button id="input-submit" class="w-full mt-4 py-2 bg-indigo-600 hover:bg-indigo-700 font-game text-lg transition-colors rounded-lg">SUBMIT</button>
+        </div>
+    </div>
+
+
     <script>
         // --- DOM ELEMENTS ---
         const lessonsList = document.getElementById('lessons-list');
@@ -126,9 +168,22 @@
         const runButton = document.getElementById('run-button');
         const consoleOutput = document.getElementById('console-output');
         const debuggerOutput = document.getElementById('debugger-output');
+        
+        // Input Modal Elements
+        const inputModal = document.getElementById('input-modal');
+        const inputPrompt = document.getElementById('input-prompt');
+        const inputField = document.getElementById('input-field');
+        const inputSubmit = document.getElementById('input-submit');
+        
+        // New Game World Elements
+        const target = document.getElementById('target');
+        const wallsContainer = document.getElementById('walls-container');
 
-        let commandQueue = [];
+        // NEW: Reset Button Element
+        const resetButton = document.getElementById('reset-button');
+
         let isExecuting = false;
+        let inputPromiseResolver = null;
 
         let characterState = {
             x: 50,
@@ -137,29 +192,9 @@
             emoji: '🤖'
         };
 
-        // --- GAME CHARACTER FUNCTIONS (API for the kid) ---
-        function moveDown(steps = 50) {
-            commandQueue.push({ type: 'move', payload: { direction: 'down', steps }, commandString: `moveDown(${steps})` });
-        }
-        function moveUp(steps = 50) {
-            commandQueue.push({ type: 'move', payload: { direction: 'up', steps }, commandString: `moveUp(${steps})` });
-        }
-        function moveRight(steps = 50) {
-            commandQueue.push({ type: 'move', payload: { direction: 'right', steps }, commandString: `moveRight(${steps})` });
-        }
-        function moveLeft(steps = 50) {
-            commandQueue.push({ type: 'move', payload: { direction: 'left', steps }, commandString: `moveLeft(${steps})` });
-        }
-        function changeColor(newColor) {
-            commandQueue.push({ type: 'style', payload: { property: 'color', value: newColor }, commandString: `changeColor('${newColor}')` });
-        }
-        function changeCharacter(newEmoji) {
-            commandQueue.push({ type: 'style', payload: { property: 'emoji', value: newEmoji }, commandString: `changeCharacter('${newEmoji}')` });
-        }
-        function say(message) {
-            const displayMessage = String(message).replace(/'/g, "\\'").replace(/"/g, '\\"');
-            commandQueue.push({ type: 'say', payload: { message }, commandString: `say('${displayMessage}')` });
-        }
+        // NEW: Game element states
+        let targetState = { x: 200, y: 150, isVisible: false };
+        let wallStates = []; // Array of {x, y, width, height} objects
 
         // --- INTERNAL FUNCTIONS ---
         function updateCharacter() {
@@ -168,10 +203,36 @@
             character.style.backgroundColor = characterState.color;
             character.innerHTML = characterState.emoji;
         }
+
+        // NEW: Functions to manage game elements
+        function updateGameElements() {
+            // Update Target
+            if (targetState.isVisible) {
+                target.style.left = `${targetState.x}px`;
+                target.style.top = `${targetState.y}px`;
+                target.style.display = 'flex';
+            } else {
+                target.style.display = 'none';
+            }
+
+            // Update Walls
+            wallsContainer.innerHTML = '';
+            for (const wall of wallStates) {
+                const wallEl = document.createElement('div');
+                wallEl.className = 'wall';
+                wallEl.style.left = `${wall.x}px`;
+                wallEl.style.top = `${wall.y}px`;
+                wallEl.style.width = `${wall.width}px`;
+                wallEl.style.height = `${wall.height}px`;
+                wallsContainer.appendChild(wallEl);
+            }
+        }
+
         function resetCharacter() {
-            logToConsole('Resetting character state...');
+            // logToConsole('Resetting character state...'); // Moved this log to the run/reset handlers
             characterState = { x: 50, y: 50, color: '#fbbf24', emoji: '🤖' };
             updateCharacter();
+            characterSpeech.style.display = 'none'; // Also hide speech bubble
         }
         function logToConsole(message, type = 'info') {
             const span = document.createElement('span');
@@ -189,99 +250,239 @@
             consoleOutput.appendChild(span);
             consoleOutput.scrollTop = consoleOutput.scrollHeight;
         }
-        async function processQueue() {
-            isExecuting = true;
-            runButton.disabled = true;
-            runButton.textContent = 'EXECUTING...';
-            runButton.classList.add('opacity-50', 'cursor-not-allowed');
-            for (const command of commandQueue) {
-                debuggerOutput.innerHTML = `<span class="text-yellow-400">${command.commandString}</span>`;
-                switch (command.type) {
-                    case 'move':
-                        logToConsole(`Moving ${command.payload.direction} by ${command.payload.steps}px...`);
-                        const worldHeight = gameWorld.clientHeight;
-                        const worldWidth = gameWorld.clientWidth;
-                        switch (command.payload.direction) {
-                            case 'down': characterState.y = Math.min(worldHeight - character.offsetHeight, characterState.y + command.payload.steps); break;
-                            case 'up': characterState.y = Math.max(0, characterState.y - command.payload.steps); break;
-                            case 'right': characterState.x = Math.min(worldWidth - character.offsetWidth, characterState.x + command.payload.steps); break;
-                            case 'left': characterState.x = Math.max(0, characterState.x - command.payload.steps); break;
-                        }
-                        updateCharacter();
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                        break;
-                    case 'style':
-                        logToConsole(`Changing ${command.payload.property} to ${command.payload.value}...`);
-                        if (command.payload.property === 'color') characterState.color = command.payload.value;
-                        if (command.payload.property === 'emoji') characterState.emoji = command.payload.value;
-                        updateCharacter();
-                        await new Promise(resolve => setTimeout(resolve, 200));
-                        break;
-                    case 'say':
-                        logToConsole(`Character says: ${command.payload.message}`);
-                        characterSpeech.innerText = command.payload.message;
-                        characterSpeech.style.display = 'block';
-                        characterSpeech.style.left = `${characterState.x + character.offsetWidth / 2}px`;
-                        characterSpeech.style.top = `${characterState.y}px`;
-                        await new Promise(resolve => setTimeout(resolve, 2000));
-                        characterSpeech.style.display = 'none';
-                        break;
+
+        // --- NEW ASYC GAME API FUNCTIONS ---
+
+        async function moveDown(steps = 50) {
+            if (!isExecuting) return;
+            logToConsole(`Moving down by ${steps}px...`);
+            debuggerOutput.innerHTML = `<span class="text-yellow-400">moveDown(${steps})</span>`;
+            
+            const worldHeight = gameWorld.clientHeight;
+            characterState.y = Math.min(worldHeight - character.offsetHeight, characterState.y + steps);
+            updateCharacter();
+            await new Promise(resolve => setTimeout(resolve, 500)); // Wait for animation
+        }
+        async function moveUp(steps = 50) {
+            if (!isExecuting) return;
+            logToConsole(`Moving up by ${steps}px...`);
+            debuggerOutput.innerHTML = `<span class="text-yellow-400">moveUp(${steps})</span>`;
+            
+            characterState.y = Math.max(0, characterState.y - steps);
+            updateCharacter();
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        async function moveRight(steps = 50) {
+            if (!isExecuting) return;
+            logToConsole(`Moving right by ${steps}px...`);
+            debuggerOutput.innerHTML = `<span class="text-yellow-400">moveRight(${steps})</span>`;
+            
+            const worldWidth = gameWorld.clientWidth;
+            characterState.x = Math.min(worldWidth - character.offsetWidth, characterState.x + steps);
+            updateCharacter();
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        async function moveLeft(steps = 50) {
+            if (!isExecuting) return;
+            logToConsole(`Moving left by ${steps}px...`);
+            debuggerOutput.innerHTML = `<span class="text-yellow-400">moveLeft(${steps})</span>`;
+            
+            characterState.x = Math.max(0, characterState.x - steps);
+            updateCharacter();
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        async function changeColor(newColor) {
+            if (!isExecuting) return;
+            logToConsole(`Changing color to ${newColor}...`);
+            debuggerOutput.innerHTML = `<span class="text-yellow-400">changeColor('${newColor}')</span>`;
+            characterState.color = newColor;
+            updateCharacter();
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        async function changeCharacter(newEmoji) {
+            if (!isExecuting) return;
+            logToConsole(`Changing character to ${newEmoji}...`);
+            debuggerOutput.innerHTML = `<span class="text-yellow-400">changeCharacter('${newEmoji}')</span>`;
+            characterState.emoji = newEmoji;
+            updateCharacter();
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        async function say(message) {
+            if (!isExecuting) return;
+            const displayMessage = String(message).replace(/'/g, "\\'").replace(/"/g, '\\"');
+            logToConsole(`Character says: ${message}`);
+            debuggerOutput.innerHTML = `<span class="text-yellow-400">say('${displayMessage}')</span>`;
+            characterSpeech.innerText = message;
+            characterSpeech.style.display = 'block';
+            characterSpeech.style.left = `${characterState.x + character.offsetWidth / 2}px`;
+            characterSpeech.style.top = `${characterState.y}px`;
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            characterSpeech.style.display = 'none';
+        }
+
+        /**
+         * NEW: Moves the character to a specific x, y coordinate.
+         */
+        async function moveTo(x, y) {
+            if (!isExecuting) return;
+            logToConsole(`Moving to coordinates (${x}, ${y})...`);
+            debuggerOutput.innerHTML = `<span class="text-yellow-400">moveTo(${x}, ${y})</span>`;
+
+            const worldHeight = gameWorld.clientHeight;
+            const worldWidth = gameWorld.clientWidth;
+
+            // Clamp values to be inside the game world
+            characterState.x = Math.min(worldWidth - character.offsetWidth, Math.max(0, x));
+            characterState.y = Math.min(worldHeight - character.offsetHeight, Math.max(0, y));
+            
+            updateCharacter();
+            await new Promise(resolve => setTimeout(resolve, 500)); // Wait for animation
+        }
+
+        /**
+         * NEW: Gets the position of the target.
+         * Returns an object: { x: number, y: number }
+         */
+        function getTargetPosition() {
+            if (!isExecuting) return;
+            logToConsole(`Target position requested: {x: ${targetState.x}, y: ${targetState.y}}`);
+            debuggerOutput.innerHTML = `<span class="text-yellow-400">getTargetPosition()</span>`;
+            return { x: targetState.x, y: targetState.y };
+        }
+
+        /**
+         * NEW: Checks if the character is currently touching any wall.
+         * Returns: true or false
+         */
+        async function checkCollision() {
+            if (!isExecuting) return;
+            debuggerOutput.innerHTML = `<span class="text-yellow-400">checkCollision()</span>`;
+
+            const charRect = character.getBoundingClientRect();
+            
+            for (const wallEl of wallsContainer.children) {
+                const wallRect = wallEl.getBoundingClientRect();
+
+                // Check for overlap
+                const isOverlapping = !(
+                    charRect.right < wallRect.left ||
+                    charRect.left > wallRect.right ||
+                    charRect.bottom < wallRect.top ||
+                    charRect.top > wallRect.bottom
+                );
+
+                if (isOverlapping) {
+                    logToConsole('Collision detected!', 'error');
+                    return true;
                 }
             }
-            debuggerOutput.innerHTML = `<span class="text-green-400">Execution Complete!</span>`;
-            logToConsole('Code finished successfully!', 'success');
-            isExecuting = false;
-            runButton.disabled = false;
-            runButton.textContent = 'RUN CODE';
-            runButton.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            logToConsole('No collision detected.', 'success');
+            return false;
         }
+
+
+        /**
+         * NEW: Asks the user for input via a modal.
+         * Must be called with 'await' to get the value.
+         * e.g., let name = await ask("What's your name?");
+         */
+        async function ask(message) {
+            if (!isExecuting) return;
+            const displayMessage = String(message).replace(/'/g, "\\'").replace(/"/g, '\\"');
+            logToConsole(`Asking: ${message}`);
+            debuggerOutput.innerHTML = `<span class="text-yellow-400">ask('${displayMessage}')</span>`;
+            
+            inputPrompt.textContent = message;
+            inputModal.classList.remove('hidden');
+            inputField.focus();
+
+            return new Promise((resolve) => {
+                inputPromiseResolver = resolve;
+            });
+        }
+
+        // --- INPUT MODAL EVENT LISTENERS ---
+        inputSubmit.addEventListener('click', () => {
+            if (inputPromiseResolver) {
+                inputModal.classList.add('hidden');
+                inputPromiseResolver(inputField.value);
+                inputPromiseResolver = null;
+                inputField.value = '';
+            }
+        });
+        inputField.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter' && inputPromiseResolver) {
+                inputSubmit.click();
+            }
+        });
+
 
         const availableCommands = [
              { name: 'moveRight(steps)', desc: 'Moves right by a number of steps.'},
              { name: 'moveLeft(steps)', desc: 'Moves left.'},
              { name: 'moveUp(steps)', desc: 'Moves up.'},
              { name: 'moveDown(steps)', desc: 'Moves down.'},
+             { name: 'moveTo(x, y)', desc: 'Moves to a specific coordinate.'},
              { name: 'changeColor("color")', desc: 'Changes color (e.g., "blue").'},
              { name: 'changeCharacter("emoji")', desc: 'Changes the character icon.'},
              { name: 'say("message")', desc: 'Displays a speech bubble.'},
+             { name: 'await ask("question")', desc: 'Asks the user for text input.'},
+             { name: 'getTargetPosition()', desc: 'Returns target {x, y} position.'},
+             { name: 'await checkCollision()', desc: 'Returns true if touching a wall.'},
         ];
 
-        // --- LESSON DATA (EXPANDED) ---
+        // --- LESSON DATA (EXPANDED & RE-NUMBERED) ---
         const lessons = [
             // Module 1: The Basics
-            { title: "1. Functions: Giving Commands", explanation: "Think of a function as a single, saved command you can give. In our game, we have built-in commands like <strong>moveRight()</strong> to control the character. You 'call' a function by typing its name followed by parentheses <strong>()</strong>. Every command you give must end with a semicolon <strong>;</strong>.", starterCode: `// Call the moveRight function to give a command.\nmoveRight();` },
-            { title: "2. Variables: Storing Info", explanation: "A variable is like a labeled box for storing information. You create one with the keyword <strong>let</strong>, give it a name, and use <strong>=</strong> to put something inside. This is useful for saving data you want to use later, like a favorite color.", starterCode: `// let creates a new variable named 'myColor'.\n// We put the text 'purple' inside it.\nlet myColor = 'purple';\n\n// Now we use the variable's value.\nchangeColor(myColor);` },
-            { title: "3. Data Types: Text (Strings)", explanation: "In programming, text is called a 'string'. To make sure the computer knows it's text, you must wrap it in single <strong>' '</strong> or double <strong>\" \"</strong> quotes. Anything inside the quotes is treated as a single piece of text, even if it has spaces or numbers.", starterCode: `// The text inside the quotes is a string.\nsay('Hello, I am a robot!');` },
-            { title: "4. Functions with Arguments", explanation: "An 'argument' is extra information you give to a function to change what it does. You put the argument inside the parentheses <strong>()</strong>. For example, <strong>moveRight(100)</strong> tells the move function to go 100 steps instead of the default 50.", starterCode: `// 'green' is the argument for the color.\nchangeColor('green');\n\n// 150 is the argument for the steps.\nmoveRight(150);\nmoveDown(25);` },
-            // Module 2: Logic and Loops
-            { title: "5. Loops: Repeating Actions", explanation: "A loop tells the computer to repeat a block of code multiple times. A <strong>for</strong> loop is perfect for this. The code <strong>for (let i = 0; i < 4; i++) { ... }</strong> sets up a counter 'i' and runs the code in the curly braces <strong>{ }</strong> as long as 'i' is less than 4.", starterCode: `// This loop will run its code 4 times.\nsay('Here I go!');\nfor (let i = 0; i < 4; i++) {\n  moveRight(50);\n}` },
-            { title: "6. Conditionals: Making Choices", explanation: "Conditional logic using <strong>if...else</strong> lets your program make decisions. The code inside the <strong>if { }</strong> block runs only IF the condition in the parentheses is true. If it's false, the code in the <strong>else { }</strong> block runs instead.", starterCode: `let score = 200;\n\n// The 'if' condition checks if score is greater than 100.\nif (score > 100) {\n  changeCharacter('🏆');\n  say('I am a winner!');\n} else {\n  say('I need more points!');\n}` },
-            { title: "7. Challenge: Draw a Square", explanation: "Let's combine what you've learned! To draw a square, you need to repeat two actions four times: move a certain distance, and then turn. Think about which two movement commands you'd need to use inside a loop that runs 4 times.", starterCode: `// CHALLENGE: Make the character move in a square shape.\nsay("Time to draw!");\n\nfor (let i = 0; i < 4; i++) {\n  // What two commands go here to make a square?\n  moveRight(100);\n  moveDown(100);\n}` },
-            // Module 3: Deeper Concepts
-            { title: "8. Data Types: Numbers & Math", explanation: "Besides strings, you can also store numbers. You don't need quotes for numbers. You can also do math right inside your code using operators like <strong>+</strong> (add), <strong>-</strong> (subtract), <strong>*</strong> (multiply), and <strong>/</strong> (divide).", starterCode: `// You can do math with numbers.\nlet distance = 25 * 4; // This equals 100\n\nsay('I will move 100 steps.');\nmoveRight(distance);\n\n// You can even do math in the function call!\nmoveDown(50 + 50);` },
-            { title: "9. Data Types: Booleans", explanation: "A boolean is the simplest data type: it can only be <strong>true</strong> or <strong>false</strong>. Booleans are the heart of decision-making. An <strong>if</strong> statement always checks if a condition is true or false.", starterCode: `let isFriendly = true;\n\nif (isFriendly) {\n  changeCharacter('😊');\n  say('Nice to meet you!');\n} else {\n  changeCharacter('😠');\n  say('Go away!');\n}` },
-            { title: "10. Comparison Operators", explanation: "How does an 'if' statement know if something is true? By using comparison operators! <strong>></strong> (greater than), <strong><</strong> (less than), and <strong>===</strong> (equal to) are used to compare two values.", starterCode: `let myLevel = 5;\n\n// This checks if myLevel is exactly equal to 5.\nif (myLevel === 5) {\n  say('Level 5 unlocked!');\n}\n\nmoveRight(100);\n\n// This checks if myLevel is less than 10.\nif (myLevel < 10) {\n  say('I am still a beginner.');\n}` },
-            { title: "11. Logical Operators: AND", explanation: "What if you need to check two conditions at once? The AND operator, <strong>&&</strong>, lets you do that. The whole condition is only true if the conditions on BOTH sides of the && are true.", starterCode: `let level = 12;\nlet hasKey = true;\n\n// We need to be level 10+ AND have the key to enter.\nif (level > 10 && hasKey === true) {\n  changeCharacter('🔑');\n  say('The door is open!');\n} else {\n  say('I cannot enter.');\n}` },
-            { title: "12. Logical Operators: OR", explanation: "The OR operator, <strong>||</strong>, is the opposite of AND. It checks if at least ONE of the conditions is true. The whole condition is true if the left side is true, OR if the right side is true (or if both are).", starterCode: `let coins = 5;\nlet gems = 2;\n\n// I can afford the item if I have 10 coins OR 3 gems.\nif (coins >= 10 || gems >= 3) {\n  say('I can buy the shield!');\n} else {\n  say('Not enough money!');\n}` },
-            // Module 4: Arrays
-            { title: "13. Arrays: Making Lists", explanation: "An array is a special variable that can hold a list of items. You create an array using square brackets <strong>[ ]</strong>, and separate each item with a comma. This is great for storing collections of related data.", starterCode: `// An array of strings holding different colors.\nlet rainbowColors = ['red', 'orange', 'yellow', 'green', 'blue'];\n\n// An array of numbers.\nlet movementSteps = [50, 100, 25];\n\nsay('I know my colors!');` },
-            { title: "14. Arrays: Accessing Items", explanation: "To get an item from an array, you use its 'index' number. The index is its position in the list, but be careful: **counting starts at 0!** So, the first item is at index <strong>[0]</strong>, the second is at <strong>[1]</strong>, and so on.", starterCode: `let emojiList = ['🤖', '🚀', '⭐', '🍕'];\n\n// Get the second item (at index 1).\nlet rocket = emojiList[1];\nchangeCharacter(rocket);\n\nsay('To the moon!');` },
-            { title: "15. Arrays: The .length Property", explanation: "Every array has a built-in property called <strong>.length</strong> that tells you how many items are inside it. This is incredibly useful, especially when you want a loop to run for every item in an array.", starterCode: `let patrolRoute = [100, 50, 100, 50];\n\nlet numberOfMoves = patrolRoute.length;\n\nsay('My route has ' + numberOfMoves + ' moves.');` },
-            { title: "16. Looping Through Arrays", explanation: "Now let's combine loops and arrays! You can use a <strong>for</strong> loop to go through every single item in an array. A common pattern is to make the loop run as long as the counter is less than the array's length.", starterCode: `let colorSequence = ['#ef4444', '#f97316', '#eab308', '#22c55e'];\n\n// This loop will run for every color in the array.\nfor (let i = 0; i < colorSequence.length; i++) {\n  let currentColor = colorSequence[i];\n  changeColor(currentColor);\n  moveRight(60);\n}` },
-            { title: "17. Challenge: Rainbow Road", explanation: "Use your knowledge of arrays and loops to make the character move across the screen, changing to each color of the rainbow as it goes. You'll need an array of colors and a for loop!", starterCode: `let rainbow = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];\n\nsay('Taste the rainbow!');\n\n// CHALLENGE: Write a 'for' loop that goes through the 'rainbow' array.\n// Inside the loop, change the character's color and move it right.` },
-            // Module 5: Your Own Functions
-            { title: "18. Create Your Own Functions", explanation: "You're not limited to our built-in commands! You can create your own reusable blocks of code using the <strong>function</strong> keyword. This helps organize your code and avoid repetition.", starterCode: `// This defines a new function, but doesn't run it yet.\nfunction jump() {\n  moveUp(50);\n  moveDown(50);\n}\n\n// Now, we can call our new function just like the others!\nsay('Time to jump!');\njump();\nmoveRight(100);\njump();` },
-            { title: "19. Functions with Parameters", explanation: "You can make your functions more powerful by letting them accept inputs, just like ours do. These inputs are called 'parameters'. You define them in the parentheses when you create the function.", starterCode: `// 'distance' is a parameter. Its value will be whatever we give it when we call the function.\nfunction moveInSquare(distance) {\n  moveRight(distance);\n  moveDown(distance);\n  moveLeft(distance);\n  moveUp(distance);\n}\n\n// Call the function and give it 100 as the argument for 'distance'.\nmoveInSquare(100);` },
-            { title: "20. Challenge: Create a Patrol Bot", explanation: "Create a function called <strong>patrol()</strong> that makes the character move right 100 steps, and then move left 100 steps to return to its start. Then, call this function multiple times inside a loop to make it patrol back and forth.", starterCode: `// CHALLENGE 1: Define a function named patrol().\n// Inside it, move right 100, then move left 100.\n\n\n\n// CHALLENGE 2: Call your patrol() function 3 times using a loop.\nfor (let i = 0; i < 3; i++) {\n  // call patrol here\n}` },
-            // Module 6: Objects
-            { title: "21. Objects: Grouping Variables", explanation: "An object is a container for related variables (called 'properties'). You create one with curly braces <strong>{ }</strong>. It lets you group all the data about one 'thing' into a single, organized structure.", starterCode: `// This object describes a player.\nlet player = {\n  name: 'Sparky',\n  level: 5,\n  color: 'orange'\n};\n\n// Let's use the data from our object.\nsay('My name is ' + player.name);\nchangeColor(player.color);` },
-            { title: "22. Accessing Object Properties", explanation: "You can access the data inside an object using dot notation. Simply type the object's variable name, a dot <strong>.</strong>, and the name of the property you want to get.", starterCode: `let enemy = {\n  type: 'Slime',\n  health: 100,\n  emoji: '🟢'\n};\n\nchangeCharacter(enemy.emoji);\nsay('A ' + enemy.type + ' appears!');` },
-            { title: "23. Modifying Object Properties", explanation: "You can change the values inside an object using dot notation and the assignment operator <strong>=</strong>. This is useful for updating the state of something, like a character's position or health.", starterCode: `let treasureChest = {\n  isOpen: false,\n  emoji: '📦'\n};\n\n// At first, the chest is closed.\nchangeCharacter(treasureChest.emoji);\nsay('A closed chest!');\nmoveRight(100);\n\n// Now, let's open it!\ntreasureChest.isOpen = true;\ntreasureChest.emoji = '💎';\n\nchangeCharacter(treasureChest.emoji);\nsay('I found a diamond!');` },
-            { title: "24. Arrays of Objects", explanation: "This is powerful! You can create a list where each item in the list is a complex object. This is how you would store data for multiple enemies, players, or items in a real game.", starterCode: `let enemies = [\n  { name: 'Slime', x: 100, emoji: '🟢'},\n  { name: 'Ghost', x: 200, emoji: '👻'},\n  { name: 'Bat', x: 300, emoji: '🦇'}\n];\n\n// Let's greet the second enemy.\nsay('Hello, ' + enemies[1].name);\nchangeCharacter(enemies[1].emoji);` },
-            { title: "25. Challenge: Spawn Enemies", explanation: "You have an array of enemy objects. Write a <strong>for loop</strong> to go through the array. Inside the loop, read each enemy's data and use it to move the character and change its appearance, then say the enemy's name.", starterCode: `let enemyList = [\n  { name: 'Goblin', color: 'green', emoji: '👺'},\n  { name: 'Skeleton', color: 'white', emoji: '💀'},\n  { name: 'Zombie', color: 'darkgreen', emoji: '🧟'}\n];\n\n// CHALLENGE: Loop through enemyList.\n// Inside, use the color, emoji, and name from each object.\nfor (let i = 0; i < enemyList.length; i++) {\n  let currentEnemy = enemyList[i];\n  // Add commands here!\n  moveRight(100);\n}` },
-            // Module 7: Final Projects
-            { title: "26. Final Challenge: The Maze", explanation: "This is a big one! Use all your skills—variables, loops, conditionals, and functions—to navigate a simple path. The goal is to get the character from the start to the finish by following a specific sequence of moves.", starterCode: `// The path is: Right 100, Down 200, Right 200, Up 100.\n\nsay('Time to solve the maze!');\n\n// Can you write the code to get to the end?\n` },
-            { title: "27. Sandbox Mode", explanation: "Congratulations! You've learned the fundamentals of programming. Now it's your turn to be creative. Use this sandbox to build whatever you want. Try making new shapes, creating a dance, or telling a story. The only limit is your imagination!", starterCode: `// Sandbox Mode! Go wild!\nsay('I can code anything!');\n\n` }
+            { title: "1. Functions: Giving Commands", explanation: "Think of a function as a single, saved command you can give. In our game, we have built-in commands like <strong>moveRight()</strong>. You 'call' a function by typing its name followed by parentheses <strong>()</strong>. Because our commands have animations, you <strong>must</strong> tell the code to 'wait' for it to finish. You do this by writing the <strong>await</strong> keyword before the command. Every command must end with a semicolon <strong>;</strong>.", starterCode: `// 'await' tells the code to wait for the command to finish.\nawait moveRight();` },
+            { title: "2. Variables: Storing Info", explanation: "A variable is like a labeled box for storing information. You create one with the keyword <strong>let</strong>, give it a name, and use <strong>=</strong> to put something inside. This is useful for saving data you want to use later, like a favorite color.", starterCode: `// let creates a new variable named 'myColor'.\n// We put the text 'purple' inside it.\nlet myColor = 'purple';\n\n// Now we use the variable's value.\nawait changeColor(myColor);` },
+            { title: "3. Data Types: Text (Strings)", explanation: "In programming, text is called a 'string'. To make sure the computer knows it's text, you must wrap it in single <strong>' '</strong> or double <strong>\" \"</strong> quotes. Anything inside the quotes is treated as a single piece of text, even if it has spaces or numbers.", starterCode: `// The text inside the quotes is a string.\nawait say('Hello, I am a robot!');` },
+            { title: "4. Functions with Arguments", explanation: "An 'argument' is extra information you give to a function to change what it does. You put the argument inside the parentheses <strong>()</strong>. For example, <strong>moveRight(100)</strong> tells the move function to go 100 steps instead of the default 50.", starterCode: `// 'green' is the argument for the color.\nawait changeColor('green');\n\n// 150 is the argument for the steps.\nawait moveRight(150);\nawait moveDown(25);` },
+            { title: "5. Getting User Input (await)", explanation: "You can ask the user for information! The <strong>ask()</strong> function will pause the game and show a popup. Because it has to wait for the user, you must use the <strong>await</strong> keyword before it to capture the value. The value is then stored in your variable.", starterCode: `// 'await' pauses the code until the user answers.\nawait say("Who are you?");\nlet name = await ask("What's your name?");\nawait say("Hello, " + name + "!");` },
+            
+            // Module 2: Logic and Loops (Re-numbered)
+            { title: "6. Loops: Repeating Actions", explanation: "A loop tells the computer to repeat a block of code multiple times. A <strong>for</strong> loop is perfect for this. The code <strong>for (let i = 0; i < 4; i++) { ... }</strong> sets up a counter 'i' and runs the code in the curly braces <strong>{ }</strong> as long as 'i' is less than 4.", starterCode: `// This loop will run its code 4 times.\nawait say('Here I go!');\nfor (let i = 0; i < 4; i++) {\n  await moveRight(50);\n}` },
+            
+            // NEW LESSON
+            { title: "7. Coordinates (Objects)", explanation: "The game world uses coordinates (x, y) to know where things are. You can get the position of the coin 🪙 using <strong>getTargetPosition()</strong>. This gives you an 'object' (like a variable box holding other variables). You can access the values inside using a dot <strong>.</strong>, like <strong>target.x</strong> and <strong>target.y</strong>.", starterCode: `await say("Where is that coin?");\nlet targetPos = getTargetPosition();\nawait say("It's at x: " + targetPos.x + " and y: " + targetPos.y);\n\n// Now, let's go get it!\nawait moveTo(targetPos.x, targetPos.y);\nawait say("Got it!");` },
+
+            { title: "8. Conditionals: Making Choices", explanation: "Conditional logic using <strong>if...else</strong> lets your program make decisions. The code inside the <strong>if { }</strong> block runs only IF the condition in the parentheses is true. If it's false, the code in the <strong>else { }</strong> block runs instead.", starterCode: `let score = 200;\n\n// The 'if' condition checks if score is greater than 100.\nif (score > 100) {\n  await changeCharacter('🏆');\n  await say('I am a winner!');\n} else {\n  await say('I need more points!');\n}` },
+            
+            // NEW LESSON
+            { title: "9. Booleans & Collision", explanation: "A 'boolean' is the simplest data type: just <strong>true</strong> or <strong>false</strong>. The <strong>checkCollision()</strong> command returns a boolean. It checks if you are touching a wall and gives you <strong>true</strong> if you are, or <strong>false</strong> if you aren't. This is perfect for an <strong>if</strong> statement!", starterCode: `await say("Let's move right...");\nawait moveRight(150);\n\nlet amITouchingWall = await checkCollision();\n\nif (amITouchingWall === true) {\n  await say("Ouch! A wall!");\n  await changeCharacter('😵');\n  await moveLeft(100);\n} else {\n  await say("All clear!");\n}` },
+            
+            { title: "10. Challenge: Draw a Square", explanation: "Let's combine what you've learned! To draw a square, you need to repeat two actions four times: move a certain distance, and then turn. Think about which two movement commands you'd need to use inside a loop that runs 4 times.", starterCode: `// CHALLENGE: Make the character move in a square shape.\nawait say("Time to draw!");\n\nfor (let i = 0; i < 4; i++) {\n  // What two commands go here to make a square?\n  await moveRight(100);\n  await moveDown(100);\n}` },
+            
+            // Module 3: Deeper Concepts (Re-numbered)
+            { title: "11. Data Types: Numbers & Math", explanation: "Besides strings, you can also store numbers. You don't need quotes for numbers. You can also do math right inside your code using operators like <strong>+</strong> (add), <strong>-</strong> (subtract), <strong>*</strong> (multiply), and <strong>/</strong> (divide).", starterCode: `// You can do math with numbers.\nlet distance = 25 * 4; // This equals 100\n\nawait say('I will move 100 steps.');\nawait moveRight(distance);\n\n// You can even do math in the function call!\nawait moveDown(50 + 50);` },
+            { title: "12. Data Types: Booleans (Recap)", explanation: "A boolean is the simplest data type: it can only be <strong>true</strong> or <strong>false</strong>. Booleans are the heart of decision-making. An <strong>if</strong> statement always checks if a condition is true or false.", starterCode: `let isFriendly = true;\n\nif (isFriendly) {\n  await changeCharacter('😊');\n  await say('Nice to meet you!');\n} else {\n  await changeCharacter('😠');\n  await say('Go away!');\n}` },
+            { title: "13. Comparison Operators", explanation: "How does an 'if' statement know if something is true? By using comparison operators! <strong>></strong> (greater than), <strong><</strong> (less than), and <strong>===</strong> (equal to) are used to compare two values.", starterCode: `let myLevel = 5;\n\n// This checks if myLevel is exactly equal to 5.\nif (myLevel === 5) {\n  await say('Level 5 unlocked!');\n}\n\nawait moveRight(100);\n\n// This checks if myLevel is less than 10.\nif (myLevel < 10) {\n  await say('I am still a beginner.');\n}` },
+            { title: "14. Logical Operators: AND", explanation: "What if you need to check two conditions at once? The AND operator, <strong>&&</strong>, lets you do that. The whole condition is only true if the conditions on BOTH sides of the && are true.", starterCode: `let level = 12;\nlet hasKey = true;\n\n// We need to be level 10+ AND have the key to enter.\nif (level > 10 && hasKey === true) {\n  await changeCharacter('🔑');\n  await say('The door is open!');\n} else {\n  await say('I cannot enter.');\n}` },
+            { title: "15. Logical Operators: OR", explanation: "The OR operator, <strong>||</strong>, is the opposite of AND. It checks if at least ONE of the conditions is true. The whole condition is true if the left side is true, OR if the right side is true (or if both are).", starterCode: `let coins = 5;\nlet gems = 2;\n\n// I can afford the item if I have 10 coins OR 3 gems.\nif (coins >= 10 || gems >= 3) {\n  await say('I can buy the shield!');\n} else {\n  await say('Not enough money!');\n}` },
+            
+            // Module 4: Arrays (Re-numbered)
+            { title: "16. Arrays: Making Lists", explanation: "An array is a special variable that can hold a list of items. You create an array using square brackets <strong>[ ]</strong>, and separate each item with a comma. This is great for storing collections of related data.", starterCode: `// An array of strings holding different colors.\nlet rainbowColors = ['red', 'orange', 'yellow', 'green', 'blue'];\n\n// An array of numbers.\nlet movementSteps = [50, 100, 25];\n\nawait say('I know my colors!');` },
+            { title: "17. Arrays: Accessing Items", explanation: "To get an item from an array, you use its 'index' number. The index is its position in the list, but be careful: **counting starts at 0!** So, the first item is at index <strong>[0]</strong>, the second is at <strong>[1]</strong>, and so on.", starterCode: `let emojiList = ['🤖', '🚀', '⭐', '🍕'];\n\n// Get the second item (at index 1).\nlet rocket = emojiList[1];\nawait changeCharacter(rocket);\n\nawait say('To the moon!');` },
+            { title: "18. Arrays: The .length Property", explanation: "Every array has a built-in property called <strong>.length</strong> that tells you how many items are inside it. This is incredibly useful, especially when you want a loop to run for every item in an array.", starterCode: `let patrolRoute = [100, 50, 100, 50];\n\nlet numberOfMoves = patrolRoute.length;\n\nawait say('My route has ' + numberOfMoves + ' moves.');` },
+            { title: "19. Looping Through Arrays", explanation: "Now let's combine loops and arrays! You can use a <strong>for</strong> loop to go through every single item in an array. A common pattern is to make the loop run as long as the counter is less than the array's length.", starterCode: `let colorSequence = ['#ef4444', '#f97316', '#eab308', '#22c55e'];\n\n// This loop will run for every color in the array.\nfor (let i = 0; i < colorSequence.length; i++) {\n  let currentColor = colorSequence[i];\n  await changeColor(currentColor);\n  await moveRight(60);\n}` },
+            { title: "20. Challenge: Rainbow Road", explanation: "Use your knowledge of arrays and loops to make the character move across the screen, changing to each color of the rainbow as it goes. You'll need an array of colors and a for loop!", starterCode: `let rainbow = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];\n\nawait say('Taste the rainbow!');\n\n// CHALLENGE: Write a 'for' loop that goes through the 'rainbow' array.\n// Inside the loop, change the character's color and move it right.\nfor (let i = 0; i < rainbow.length; i++) {\n  await changeColor(rainbow[i]);\n  await moveRight(50);\n}` },
+            
+            // Module 5: Your Own Functions (Re-numbered)
+            { title: "21. Create Your Own Functions", explanation: "You're not limited to our built-in commands! You can create your own reusable blocks of code using the <strong>function</strong> keyword. <strong>Important:</strong> If you use <strong>await</strong> inside your new function, you must declare your function as <strong>async</strong> by writing <strong>async function...</strong>", starterCode: `// This defines a new async function, but doesn't run it yet.\nasync function jump() {\n  await moveUp(50);\n  await moveDown(50);\n}\n\n// Now, we can call our new function just like the others!\nawait say('Time to jump!');\nawait jump();\nawait moveRight(100);\nawait jump();` },
+            { title: "22. Functions with Parameters", explanation: "You can make your functions more powerful by letting them accept inputs, just like ours do. These inputs are called 'parameters'. You define them in the parentheses when you create the function.", starterCode: `// 'distance' is a parameter. Its value will be whatever we give it when we call the function.\nasync function moveInSquare(distance) {\n  await moveRight(distance);\n  await moveDown(distance);\n  await moveLeft(distance);\n  await moveUp(distance);\n}\n\n// Call the function and give it 100 as the argument for 'distance'.\nawait moveInSquare(100);` },
+            { title: "23. Challenge: Create a Patrol Bot", explanation: "Create a function called <strong>patrol()</strong> that makes the character move right 100 steps, and then move left 100 steps to return to its start. Then, call this function multiple times inside a loop to make it patrol back and forth.", starterCode: `// CHALLENGE 1: Define an async function named patrol().\n// Inside it, move right 100, then move left 100.\nasync function patrol() {\n  await moveRight(100);\n  await moveLeft(100);\n}\n\n// CHALLENGE 2: Call your patrol() function 3 times using a loop.\nfor (let i = 0; i < 3; i++) {\n  await patrol();\n}` },
+            
+            // Module 6: Objects (Re-numbered)
+            { title: "24. Objects: Grouping Variables", explanation: "An object is a container for related variables (called 'properties'). You create one with curly braces <strong>{ }</strong>. It lets you group all the data about one 'thing' into a single, organized structure. You already used one with <strong>getTargetPosition()</strong>!", starterCode: `// This object describes a player.\nlet player = {\n  name: 'Sparky',\n  level: 5,\n  color: 'orange'\n};\n\n// Let's use the data from our object.\nawait say('My name is ' + player.name);\nawait changeColor(player.color);` },
+            { title: "25. Accessing Object Properties", explanation: "You can access the data inside an object using dot notation. Simply type the object's variable name, a dot <strong>.</strong>, and the name of the property you want to get.", starterCode: `let enemy = {\n  type: 'Slime',\n  health: 100,\n  emoji: '🟢'\n};\n\nawait changeCharacter(enemy.emoji);\nawait say('A ' + enemy.type + ' appears!');` },
+            { title: "26. Modifying Object Properties", explanation: "You can change the values inside an object using dot notation and the assignment operator <strong>=</strong>. This is useful for updating the state of something, like a character's position or health.", starterCode: `let treasureChest = {\n  isOpen: false,\n  emoji: '📦'\n};\n\n// At first, the chest is closed.\nawait changeCharacter(treasureChest.emoji);\nawait say('A closed chest!');\nawait moveRight(100);\n\n// Now, let's open it!\ntreasureChest.isOpen = true;\ntreasureChest.emoji = '💎';\n\nawait changeCharacter(treasureChest.emoji);\nawait say('I found a diamond!');` },
+            { title: "27. Arrays of Objects", explanation: "This is powerful! You can create a list where each item in the list is a complex object. This is how you would store data for multiple enemies, players, or items in a real game.", starterCode: `let enemies = [\n  { name: 'Slime', x: 100, emoji: '🟢'},\n  { name: 'Ghost', x: 200, emoji: '👻'},\n  { name: 'Bat', x: 300, emoji: '🦇'}\n];\n\n// Let's greet the second enemy.\nawait say('Hello, ' + enemies[1].name);\nawait changeCharacter(enemies[1].emoji);` },
+            { title: "28. Challenge: Spawn Enemies", explanation: "You have an array of enemy objects. Write a <strong>for loop</strong> to go through the array. Inside the loop, read each enemy's data and use it to move the character and change its appearance, then say the enemy's name.", starterCode: `let enemyList = [\n  { name: 'Goblin', color: 'green', emoji: '👺'},\n  { name: 'Skeleton', color: 'white', emoji: '💀'},\n  { name: 'Zombie', color: 'darkgreen', emoji: '🧟'}\n];\n\n// CHALLENGE: Loop through enemyList.\n// Inside, use the color, emoji, and name from each object.\nfor (let i = 0; i < enemyList.length; i++) {\n  let currentEnemy = enemyList[i];\n  // Add commands here!\n  await changeColor(currentEnemy.color);\n  await changeCharacter(currentEnemy.emoji);\n  await say(currentEnemy.name);\n  await moveRight(100);\n}` },
+            
+            // Module 7: Final Projects (Re-numbered)
+            { title: "29. Final Challenge: The Maze", explanation: "This is a big one! Use all your skills to navigate the maze. There are walls in your way! You'll need to use <strong>if</strong> statements and maybe <strong>checkCollision()</strong>, or just guide the character around them.", starterCode: `// CHALLENGE: Get the character to the coin!\n// The coin is at (350, 250).\n// The walls are in your way!\n\nawait say('Time to solve the maze!');\n\n// Can you write the code to get to the end?\nawait moveRight(100);\nawait moveDown(200);\nawait moveRight(200);\nawait moveUp(100);\n` },
+            { title: "30. Sandbox Mode", explanation: "Congratulations! You've learned the fundamentals of programming. Now it's your turn to be creative. Use this sandbox to build whatever you want. Try making new shapes, creating a dance, or telling a story. The only limit is your imagination!", starterCode: `// Sandbox Mode! Go wild!\nawait say('I can code anything!');\n\n` }
         ];
         
         // --- EVENT LISTENERS & INITIALIZATION ---
@@ -296,29 +497,106 @@
             });
 
             logToConsole(`Mission selected: ${lesson.title}`, 'success');
-            resetCharacter();
+            
+            // --- NEW: Lesson-specific setups ---
+            // Reset all elements first
+            targetState = { x: 200, y: 150, isVisible: false };
+            wallStates = [];
+
+            // Lesson 7: "Coordinates (Objects)"
+            if (index === 6) { 
+                targetState.isVisible = true;
+                targetState.x = 250;
+                targetState.y = 150;
+            }
+            // Lesson 9: "Booleans & Collision"
+            else if (index === 8) {
+                wallStates.push({ x: 200, y: 20, width: 40, height: 150 });
+            }
+            // Lesson 29: "Final Challenge: The Maze"
+            else if (index === 28) {
+                targetState.isVisible = true;
+                targetState.x = 350;
+                targetState.y = 250;
+                // Maze walls
+                wallStates.push({ x: 150, y: 0, width: 40, height: 150 });
+                wallStates.push({ x: 150, y: 150, width: 150, height: 40 });
+                wallStates.push({ x: 100, y: 250, width: 150, height: 40 });
+            }
+            
+            resetCharacter(); // Resets character position
+            updateGameElements(); // Draws walls/targets
         }
 
-        runButton.addEventListener('click', () => {
+        // --- RE-WRITTEN RUN BUTTON HANDLER (ASYNC) ---
+        runButton.addEventListener('click', async () => {
             if (isExecuting) return; 
 
-            commandQueue = [];
+            isExecuting = true;
+            runButton.disabled = true;
+            runButton.textContent = 'EXECUTING...';
+            runButton.classList.add('opacity-50', 'cursor-not-allowed');
+
             consoleOutput.innerHTML = '';
-            logToConsole('Parsing code...');
-            debuggerOutput.innerHTML = '<span class="text-gray-500">Parsing...</span>';
+            logToConsole('Starting execution...');
+            logToConsole('Resetting character state...');
+            debuggerOutput.innerHTML = '<span class="text-gray-500">Starting...</span>';
             resetCharacter();
 
             const userCode = codeEditor.value;
             
+            // Create an AsyncFunction constructor
+            const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+            
+            // Create a new async function, passing our API functions in as arguments
+            const userFunc = new AsyncFunction(
+                'moveDown', 'moveUp', 'moveRight', 'moveLeft',
+                'changeColor', 'changeCharacter', 'say', 'ask',
+                'moveTo', 'getTargetPosition', 'checkCollision', // Add new functions
+                userCode
+            );
+
             try {
-                const populateQueue = new Function(userCode);
-                populateQueue();
-                logToConsole('Code parsed successfully. Starting execution...', 'success');
-                processQueue();
+                // Call the user's code, and it can now `await` our API functions.
+                await userFunc(
+                    moveDown, moveUp, moveRight, moveLeft,
+                    changeColor, changeCharacter, say, ask,
+                    moveTo, getTargetPosition, checkCollision // Pass new functions
+                );
+                debuggerOutput.innerHTML = `<span class="text-green-400">Execution Complete!</span>`;
+                logToConsole('Code finished successfully!', 'success');
             } catch (error) {
                 logToConsole(error.message, 'error');
                 debuggerOutput.innerHTML = `<span class="text-red-500">Error! Check console.</span>`;
+            } finally {
+                isExecuting = false;
+                runButton.disabled = false;
+                runButton.textContent = 'RUN CODE';
+                runButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                
+                // Just in case the modal was left open by an error
+                if (inputPromiseResolver) {
+                    inputPromiseResolver(null); // Resolve with null
+                    inputPromiseResolver = null;
+                }
+                inputModal.classList.add('hidden');
+                inputField.value = '';
             }
+        });
+
+        // NEW: Reset Button Handler
+        resetButton.addEventListener('click', () => {
+            if (isExecuting) {
+                // Don't reset while code is running
+                logToConsole('Cannot reset while code is executing.', 'error');
+                return;
+            }
+            logToConsole('Game world reset by user.', 'success');
+            resetCharacter();
+            // We also need to reset the elements for the *current* lesson
+            selectLesson(lessons.findIndex(l => l.title === instructionTitle.textContent));
+            // consoleOutput.innerHTML = '<span class="text-gray-500">> Console ready...</span>'; // selectLesson logs
+            debuggerOutput.innerHTML = '<span class="text-gray-500">Press RUN to start...</span>';
         });
 
         window.addEventListener('load', () => {
@@ -332,6 +610,7 @@
             });
 
             // Populate command list
+            commandList.innerHTML = ''; // Clear old list just in case
             availableCommands.forEach(cmd => {
                 const div = document.createElement('div');
                 div.className = 'text-sm';
@@ -340,6 +619,7 @@
             });
 
             updateCharacter();
+            updateGameElements(); // Initial draw
         });
     </script>
 </body>
