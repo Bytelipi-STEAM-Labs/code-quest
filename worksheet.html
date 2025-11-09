@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Quest - Student Booklet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Lighter background */
+        }
+        h1 { font-size: 2.25rem; font-weight: 700; }
+        h2 { font-size: 1.875rem; font-weight: 700; border-bottom: 2px solid #3b82f6; padding-bottom: 8px; margin-top: 2rem; margin-bottom: 1rem; color: #1e3a8a; }
+        h3 { font-size: 1.25rem; font-weight: 700; color: #1d4ed8; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        h4 { font-size: 1.1rem; font-weight: 700; color: #1f2937; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        p, li { font-size: 1rem; line-height: 1.75; color: #1f2937; }
+        code {
+            font-family: 'Source Code Pro', monospace;
+            background-color: #e5e7eb;
+            color: #be185d;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-size: 0.9em;
+        }
+        pre {
+            font-family: 'Source Code Pro', monospace;
+            background-color: #1f2937; /* Dark background for code blocks */
+            color: #d1d5db;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            font-size: 1em;
+        }
+        details {
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            background-color: #ffffff;
+        }
+        summary {
+            font-weight: 500;
+            cursor: pointer;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        details[open] summary {
+            border-bottom: 1px solid #d1d5db;
+        }
+        .solution-content {
+            padding: 1rem;
+            background-color: #ffffff;
+            border-radius: 0 0 0.5rem 0.5rem;
+        }
+        .mission-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 2rem;
+            margin-top: 1.5rem;
+        }
+        .concept-box {
+            background-color: #eef2ff;
+            border-left: 4px solid #4f46e5;
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin: 1.5rem 0;
+        }
+
+        /* --- PRINT STYLES --- */
+        @media print {
+            body {
+                font-family: 'Inter', sans-serif;
+                background-color: #ffffff;
+                color: #000000;
+            }
+            .no-print {
+                display: none !important;
+            }
+            header, footer {
+                display: none;
+            }
+            main {
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .mission-card {
+                box-shadow: none;
+                border: 1px solid #d1d5db;
+                padding: 1.5rem;
+                margin-top: 1.5rem;
+                page-break-inside: avoid;
+            }
+            h2 {
+                color: #000000;
+                border-bottom: 2px solid #9ca3af;
+            }
+            h3, h4 {
+                color: #000000;
+            }
+            .concept-box {
+                background-color: #f3f4f6 !important;
+                border: 1px solid #d1d5db;
+                border-left-width: 4px;
+                border-left-color: #4f46e5;
+            }
+            pre {
+                background-color: #f3f4f6 !important;
+                color: #1f2937 !important;
+                border: 1px solid #d1d5db;
+            }
+            /* Force details to be open and remove the summary marker */
+            details {
+                border: none;
+                margin-top: 1rem;
+            }
+            details[open] {
+                display: block;
+            }
+            details summary {
+                display: none; /* Hide the "Click to see" summary */
+            }
+            .solution-content {
+                padding: 0;
+                border: 1px dashed #d1d5db;
+                padding: 1rem;
+                background-color: #f9fafb !important;
+            }
+            /* Add "Clue:" and "Solution:" titles for print */
+            details.clue::before {
+                content: "Clue";
+                font-weight: 700;
+                color: #1d4ed8;
+                font-size: 1.1rem;
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+            details.solution::before {
+                content: "Solution";
+                font-weight: 700;
+                color: #1d4ed8;
+                font-size: 1.1rem;
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+            a {
+                text-decoration: none;
+                color: #000000;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md no-print">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-blue-800">Code Quest: JavaScript Booklet</h1>
+                <p class="text-lg text-gray-600 mt-1">A Worksheet for Student Coders</p>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <button id="print-btn" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors duration-200">
+                    Print / Save as PDF
+                </button>
+                <button id="download-tex-btn" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors duration-200">
+                    Download .tex Source
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto p-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Introduction -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="!mt-0 !border-blue-200">Introduction</h2>
+            <p>Welcome to the Code Quest workshop! This guide contains 25 missions across 5 sections to test your JavaScript skills. Each mission uses functions from the "Code Quest" game.</p>
+            <p class="mt-4">Remember the most important rule: because our game functions have animations, you must use the <code>await</code> keyword before calling them!</p>
+            <pre><code>// Example
+await say("I'm ready to code!");</code></pre>
+            <p class="mt-4">Read the concept, then the mission, and try to write the code. If you get stuck, check the clues. After you've tried, check your answer in the solutions. Good luck, Coder!</p>
+        </div>
+
+        <!-- Section 1: Variables & Data Types -->
+        <section>
+            <h2>Section 1: Variables & Data Types</h2>
+            <p>Learn to store and use different types of information.</p>
+
+            <div class="mission-card">
+                <h4>Mission 1: The Greeter Bot</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Variables & Strings</strong><br>
+                    A <code>let</code> variable stores information. A <code>String</code> is text, wrapped in quotes (<code>"Hello"</code>). You can join strings with <code>+</code>.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Asks the user for their name (<code>await ask(...)</code>) and store it in a variable called <code>playerName</code>.</li>
+                    <li>Uses the <code>say()</code> command to greet the user by name (e.g., "Hello, Ada!").</li>
+                </ol>
+                <details class="clue">
+                    <summary>Click to see Clue</summary>
+                    <div class="solution-content">
+                        <p>To join a string and a variable, use: <code>"Hello, " + playerName</code></p>
+                    </div>
+                </details>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>let playerName = await ask("What is your name?");
+await say("Hello, " + playerName + "!");</code></pre>
+                    </div>
+                </details>
+            </div>
+
+            <div class="mission-card">
+                <h4>Mission 2: The Step Counter</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Numbers & Math</strong><br>
+                    <code>Number</code> data types are just digits (e.g., <code>50</code>, <code>100</code>) with no quotes. You can use math operators (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>) to calculate new values.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Create a variable <code>baseMove</code> and set it to <code>50</code>.</li>
+                    <li>Create a variable <code>longMove</code> and set it to <code>baseMove * 3</code>.</li>
+                    <li>Make the robot move right by <code>longMove</code> steps.</li>
+                    <li>Make the robot move down by <code>baseMove</code> steps.</li>
+                </ol>
+                <details class="clue">
+                    <summary>Click to see Clue</summary>
+                    <div class="solution-content">
+                        <p>Use the variable names, not the numbers, inside the move commands: <code>await moveRight(longMove);</code></p>
+                    </div>
+                </details>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>let baseMove = 50;
+let longMove = baseMove * 3;
+
+await moveRight(longMove);
+await moveDown(baseMove);</code></pre>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="mission-card">
+                <h4>Mission 3: The Watcher</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Debugging with `watch()`</strong><br>
+                    The <code>await watch(label, value)</code> command prints a variable's value to the "Execution Step" window. It's essential for debugging and seeing what your code is *really* doing.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Create a variable <code>magicNumber</code> and set it to <code>77</code>.</li>
+                    <li>Use <code>watch()</code> to display this number. The label should be "Magic Number".</li>
+                    <li>Change the robot's color to "purple".</li>
+                    <li>Change <code>magicNumber</code> to <code>magicNumber * 2</code>.</li>
+                    <li>Use <code>watch()</code> again to show its new value, labeled "New Number".</li>
+                </ol>
+                <details class="clue">
+                    <summary>Click to see Clue</summary>
+                    <div class="solution-content">
+                        <p>The first watch command will look like: <code>await watch("Magic Number", magicNumber);</code></p>
+                    </div>
+                </details>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>let magicNumber = 77;
+await watch("Magic Number", magicNumber);
+await changeColor("purple");
+
+magicNumber = magicNumber * 2;
+await watch("New Number", magicNumber);</code></pre>
+                    </div>
+                </details>
+            </div>
+
+            <div class="mission-card">
+                <h4>Mission 4: The Annoying Bot</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: String Concatenation</strong><br>
+                    You can add (concatenate) strings and variables together multiple times to build complex sentences.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Ask the user for their favorite color. Store it in <code>favColor</code>.</li>
+                    <li>Ask the user for their favorite food. Store it in <code>favFood</code>.</li>
+                    <li>Use <code>say()</code> to say "Your favorite color is [color] and you like [food]!"</li>
+                    <li>Use <code>say()</code> again to say "I don't like [color] or [food]."</li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>let favColor = await ask("Favorite color?");
+let favFood = await ask("Favorite food?");
+
+await say("Your favorite color is " + favColor + " and you like " + favFood + "!");
+await say("I don't like " + favColor + " or " + favFood + ".");</code></pre>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="mission-card">
+                <h4>Mission 5: Full Reset</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Reassigning Variables</strong><br>
+                    You can change the value of a <code>let</code> variable at any time by simply assigning it a new value.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Change the character's emoji to "🚀".</li>
+                    <li>Move right 100 steps.</li>
+                    <li>Change the character's emoji to "💥".</li>
+                    <li>Change the color to "red".</li>
+                    <li>Use <code>say()</code> to say "Error! Resetting!".</li>
+                    <li>Change the emoji back to "🤖" and the color back to "gold".</li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>await changeCharacter("🚀");
+await moveRight(100);
+await changeCharacter("💥");
+await changeColor("red");
+await say("Error! Resetting!");
+await changeCharacter("🤖");
+await changeColor("gold");</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <!-- Section 2: Functions -->
+        <section>
+            <h2>Section 2: Functions</h2>
+            <p>Learn to create reusable, powerful blocks of code.</p>
+
+            <div class="mission-card">
+                <h4>Mission 6: The Jumper</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Creating Functions</strong><br>
+                    A <code>function</code> is a reusable block of code. If your function uses any <code>await</code> commands, you must declare it as an <code>async function</code>.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Define a new <code>async function</code> called <code>jump()</code>.</li>
+                    <li>Inside <code>jump()</code>, make the robot move up 50 steps, then down 50 steps.</li>
+                    <li>Call your <code>await jump()</code> function.</li>
+                    <li>Move right 100 steps.</li>
+                    <li>Call <code>await jump()</code> again.</li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>async function jump() {
+  await moveUp(50);
+  await moveDown(50);
+}
+
+await jump();
+await moveRight(100);
+await jump();</code></pre>
+                    </div>
+                </details>
+            </div>
+
+            <div class="mission-card">
+                <h4>Mission 7: The Square Drawer</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Functions with Parameters</strong><br>
+                    A <strong>parameter</strong> (e.g., <code>size</code>) is a variable you put in your function's definition. It lets you pass in a value (an "argument") when you call the function, making it flexible.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Define an <code>async function</code> called <code>drawSquare(size)</code> that accepts one parameter.</li>
+                    <li>Inside, use the <code>size</code> parameter to move right, down, left, and up.</li>
+                    <li>Call <code>await drawSquare(100);</code> to draw a big square.</li>
+                    <li>Call <code>await drawSquare(25);</code> to draw a small square.</li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>async function drawSquare(size) {
+  await moveRight(size);
+  await moveDown(size);
+  await moveLeft(size);
+  await moveUp(size);
+}
+
+await drawSquare(100);
+await drawSquare(25);</code></pre>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="mission-card">
+                <h4>Mission 8: The Colorful Mover</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Functions with Multiple Parameters</strong><br>
+                    You can add as many parameters as you need, separated by commas.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Define an <code>async function</code> called <code>moveAndPaint(distance, newColor)</code>.</li>
+                    <li>Inside, it should move right by <code>distance</code>, then change color to <code>newColor</code>.</li>
+                    <li>Call it with <code>100</code> and <code>"blue"</code>.</li>
+                    <li>Call it with <code>50</code> and <code>"green"</code>.</li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>async function moveAndPaint(distance, newColor) {
+  await moveRight(distance);
+  await changeColor(newColor);
+}
+
+await moveAndPaint(100, "blue");
+await moveAndPaint(50, "green");</code></pre>
+                    </div>
+                </details>
+            </div>
+
+            <div class="mission-card">
+                <h4>Mission 9: The Prize Giver</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Functions that Return Values</strong><br>
+                    Functions can give data back using the <code>return</code> keyword. If the function *only* does a calculation (no <code>await</code>), it does *not* need to be <code>async</code>.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Create a <strong>normal</strong> function <code>calculatePrize(name)</code>.</li>
+                    <li>Inside, make it <code>return</code> the string <code>"A coin for " + name + "!"</code>.</li>
+                    <li>In your main code, <code>await ask()</code> for a name.</li>
+                    <li>Call your <code>calculatePrize()</code> function and store the result in a <code>message</code> variable.</li>
+                    <li><code>await say()</code> the <code>message</code>.</li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>function calculatePrize(name) {
+  return "A coin for " + name + "!";
+}
+
+let playerName = await ask("What's your name?");
+let message = calculatePrize(playerName);
+await say(message);</code></pre>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="mission-card">
+                <h4>Mission 10: The Smart Calculator</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Combining Return and `await`</strong><br>
+                    You can use <code>await</code> to get values, pass them to a normal function, and then use the returned value in another <code>await</code> command. This mixes async and sync code.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Create a normal function <code>add(num1, num2)</code> that returns <code>num1 + num2</code>.</li>
+                    <li><code>await ask()</code> for a number. Store it in <code>val1</code>. (It will be a string)</li>
+                    <li><code>await ask()</code> for a second number. Store it in <code>val2</code>. (It will be a string)</li>
+                    <li>Call <code>add(val1, val2)</code> and store the result in <code>sum</code>.</li>
+                    <li><code>await say()</code> the <code>sum</code>. (What happens? Is it what you expected?)</li>
+                </ol>
+                <details class="clue">
+                    <summary>Click to see Clue</summary>
+                    <div class="solution-content">
+                        <p>The <code>ask()</code> function returns a string. When you use <code>+</code> on strings, it joins them ("5" + "5" = "55"). To fix this, you must convert the strings to numbers using <code>Number(val1)</code>.</p>
+                        <p>Try making <code>add(Number(val1), Number(val2))</code>.</p>
+                    </div>
+                </details>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>// This function is correct.
+function add(num1, num2) {
+  return num1 + num2;
+}
+
+let val1 = await ask("Enter first number:");
+let val2 = await ask("Enter second number:");
+
+// The bug: val1 and val2 are strings!
+// "5" + "5" = "55" (concatenation)
+let sum = add(val1, val2);
+await say("The result is: " + sum);
+
+// The Fix:
+// let sum = add(Number(val1), Number(val2));
+// await say("The *real* sum is: " + sum);</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+        
+        <!-- Section 3: Logic & Conditionals -->
+        <section>
+            <h2>Section 3: Logic & Conditionals</h2>
+            <p>Teach your robot how to make decisions.</p>
+
+            <div class="mission-card">
+                <h4>Mission 11: The Bouncer Bot</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: `if` Statements</strong><br>
+                    An <code>if (...) { ... }</code> statement only runs the code in the <code>{ }</code> if the condition in the <code>(...)</code> is true. We use "comparison operators" like <code>===</code> (is equal to) to check.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Create a variable <code>password</code> and set it to <code>"open sesame"</code>.</li>
+                    <li><code>await ask()</code> the user for the password. Store their answer in <code>guess</code>.</li>
+                    <li>Write an <code>if</code> statement that checks if <code>guess === password</code>.</li>
+                    <li>Inside the <code>if</code> block, make the robot say "Welcome!" and change color to "green".</li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>let password = "open sesame";
+let guess = await ask("What's the password?");
+
+if (guess === password) {
+  await say("Welcome!");
+  await changeColor("green");
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="mission-card">
+                <h4>Mission 12: The Bouncer Bot 2.0</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: `if...else` Statements</strong><br>
+                    An <code>else { ... }</code> block can be added after an <code>if</code>. The <code>else</code> code runs *only* if the <code>if</code> condition was false.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Use the same code from Mission 11.</li>
+                    <li>Add an <code>else</code> block after the <code>if</code>.</li>
+                    <li>Inside the <code>else</code> block, make the robot say "Go away!" and change color to "red".</li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>let password = "open sesame";
+let guess = await ask("What's the password?");
+
+if (guess === password) {
+  await say("Welcome!");
+  await changeColor("green");
+} else {
+  await say("Go away!");
+  await changeColor("red");
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="mission-card">
+                <h4>Mission 13: Wall Detector</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: `isTouchingWall()`</strong><br>
+                    The <code>await isTouchingWall()</code> command is special. It's a "boolean" function: it *returns* either <code>true</code> or <code>false</code>. You can use it directly inside an <code>if</code> statement.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Move left by 100 steps (to hit the wall).</li>
+                    <li>Call <code>await isTouchingWall()</code> and store the result in a variable <code>touching</code>.</li>
+                    <li>Write an <code>if</code> statement that checks <code>if (touching === true)</code>.</li>
+                    <li>Inside the <code>if</code>, <code>say()</code> "Ouch! A wall!"</li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>await moveLeft(100);
+
+let touching = await isTouchingWall();
+
+if (touching === true) {
+  await say("Ouch! A wall!");
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="mission-card">
+                <h4>Mission 14: The Escape Artist</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: `else if` Statements</strong><br>
+                    You can chain multiple checks together. <code>if</code> (check 1), then <code>else if</code> (check 2), then <code>else</code> (if neither was true).</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li><code>await ask()</code> "Which way? (up, down, or side)". Store in <code>direction</code>.</li>
+                    <li>If <code>direction === "up"</code>, then <code>moveUp(100)</code>.</li>
+                    <li><code>else if</code> <code>direction === "down"</code>, then <code>moveDown(100)</code>.</li>
+                    <li><code>else</code> (if it's not up or down), <code>say("I can't go that way!")</code>.</li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>let direction = await ask("Which way? (up, down, or side)");
+
+if (direction === "up") {
+  await moveUp(100);
+} else if (direction === "down") {
+  await moveDown(100);
+} else {
+  await say("I can't go that way!");
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="mission-card">
+                <h4>Mission 15: The Treasure Hunter</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Logical `&&` (AND)</strong><br>
+                    Use <code>&&</code> (AND) to check if *two* conditions are true at the same time. <code>if (condition1 && condition2)</code>.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li><code>await ask()</code> for a password. Store in <code>pass</code>.</li>
+                    <li><code>await ask()</code> for a key number. Store in <code>key</code>.</li>
+                    <li>Write an <code>if</code> statement that checks if <code>pass === "open"</code> AND <code>key === "123"</code>.</li>
+                    <li>If both are true, <code>say("Treasure unlocked!")</code>.</li>
+                    <li><code>else</code>, <code>say("You're missing something.")</code>.</li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>let pass = await ask("Password?");
+let key = await ask("Key number?");
+
+if (pass === "open" && key === "123") {
+  await say("Treasure unlocked!");
+} else {
+  await say("You're missing something.");
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+        
+        <!-- Section 4: Loops -->
+        <section>
+            <h2>Section 4: For Loops</h2>
+            <p>Learn to repeat your actions automatically.</p>
+
+            <div class="mission-card">
+                <h4>Mission 16: The Annoying Bot 2.0</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: `for` Loops</strong><br>
+                    A <code>for</code> loop repeats a block of code a specific number of times. The code <code>for (let i = 0; i < 4; i++) { ... }</code> runs the code in the <code>{ }</code> exactly 4 times.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Write a <code>for</code> loop that runs 5 times.</li>
+                    <li>Inside the loop, make the robot <code>say("Are we there yet?")</code>.</li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>for (let i = 0; i < 5; i++) {
+  await say("Are we there yet?");
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="mission-card">
+                <h4>Mission 17: The Square Dance</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Loops & Functions</strong><br>
+                    You can put any code inside a loop, including other functions you've made. This is how you combine concepts!</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Write a <code>for</code> loop that runs 4 times.</li>
+                    <li>Inside the loop, move right 100, then move down 100.</li>
+                    <li>(What shape does this draw? Is it a square?)</li>
+                </ol>
+                <details class="clue">
+                    <summary>Click to see Clue</summary>
+                    <div class="solution-content">
+                        <p>This will draw a staircase, not a square! To draw a square, you need <code>moveRight(100)</code>, <code>moveDown(100)</code>, <code>moveLeft(100)</code>, and <code>moveUp(100)</code>. You could put all 4 in the loop, but then... why run the loop 4 times?</p>
+                        <p>A true "square" loop is: <code>moveRight(100)</code>, <code>moveDown(100)</code>... and repeat. This is what your loop does. It just makes a 4-step staircase.</p>
+                    </div>
+                </details>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>// This draws a 4-step staircase
+for (let i = 0; i < 4; i++) {
+  await moveRight(100);
+  await moveDown(100);
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="mission-card">
+                <h4>Mission 18: The REAL Square Dance</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Loop-ception</strong><br>
+                    You can nest loops inside of other loops, but a simpler way is to just put more commands inside one loop.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>This time, draw a *true* 100x100 square.</li>
+                    <li>Write a <code>for</code> loop that runs <strong>4 times</strong>.</li>
+                    <li>Inside the loop, you will need to move and... turn. How do you turn?</li>
+                    <li>(Hint: A square is <code>moveRight</code>, <code>moveDown</code>, <code>moveLeft</code>, <code>moveUp</code>... Can you put all four commands inside a loop that runs <strong>once</strong>?)</li>
+                </ol>
+                <details class="clue">
+                    <summary>Click to see Clue</summary>
+                    <div class="solution-content">
+                        <p>This is a trick question! You don't need a loop to draw *one* square. You would just write the 4 commands. You would use a loop if you wanted to draw *multiple* squares.</p>
+                    </div>
+                </details>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>// You don't need a loop for one square.
+await moveRight(100);
+await moveDown(100);
+await moveLeft(100);
+await moveUp(100);
+
+// But if you made a function for it...
+async function drawSquare() {
+  await moveRight(100);
+  await moveDown(100);
+  await moveLeft(100);
+  await moveUp(100);
+}
+
+// You could use a loop to draw 3 squares!
+for (let i = 0; i < 3; i++) {
+  await drawSquare();
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+
+            <div class="mission-card">
+                <h4>Mission 19: The Growing Steps</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Using the Loop Variable `i`</strong><br>
+                    The variable <code>i</code> in your loop (<code>let i = 0</code>) isn't just a counter. It's a real number you can use! It will be <code>0</code>, then <code>1</code>, then <code>2</code>, etc. You can use it in your math.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Write a <code>for</code> loop that runs 5 times.</li>
+                    <li>Inside the loop, move right by <code>i * 25</code> steps.</li>
+                    <li>(What happens? The first move is 0*25=0, the second is 1*25=25, etc.)</li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>for (let i = 0; i < 5; i++) {
+  // i will be 0, 1, 2, 3, 4
+  await watch("i is", i);
+  await moveRight(i * 25);
+  await moveDown(25); // Add this to see it better
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="mission-card">
+                <h4>Mission 20: The Wall Banger</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: `while` Loops (Not `for`)</strong><br>
+                    A <code>for</code> loop runs a set number of times. A <code>while(condition) { ... }</code> loop runs *forever* until the condition becomes false. This is great for using with sensors!</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Start a loop: <code>while (true) { ... }</code>. This loop will run forever!</li>
+                    <li>Inside the loop, move left by 25 steps.</li>
+                    <li>Check <code>if (await isTouchingWall())</code>.</li>
+                    <li>If it is, <code>say("I hit it!")</code> and use the <code>break;</code> command to stop the loop.</li>
+                </ol>
+                <details class="clue">
+                    <summary>Click to see Clue</summary>
+                    <div class="solution-content">
+                        <p>The <code>break;</code> keyword is the only way to escape a <code>while(true)</code> loop. Make sure it's inside your <code>if</code> statement!</p>
+                    </div>
+                </details>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>while (true) {
+  await moveLeft(25);
+  
+  let touching = await isTouchingWall();
+  
+  if (touching === true) {
+    await say("I hit it!");
+    break; // Stop the loop
+  }
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+        
+        <!-- Section 5: Arrays & Objects -->
+        <section>
+            <h2>Section 5: Arrays & Objects</h2>
+            <p>Store and manage complex collections of data.</p>
+
+            <div class="mission-card">
+                <h4>Mission 21: The Rainbow Bot</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Arrays</strong><br>
+                    An <code>Array</code> is a list of items stored in a single variable, using square brackets <code>[ ]</code>. E.g., <code>let colors = ["red", "green", "blue"];</code></p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Create an array <code>colorList</code> containing: "red", "orange", "yellow", "green", "blue".</li>
+                    <li>Use <code>await changeColor()</code> to change the robot's color to the *first* item in the list.</li>
+                    <li>Use <code>await changeColor()</code> again to change to the *third* item.</li>
+                </ol>
+                <details class="clue">
+                    <summary>Click to see Clue</summary>
+                    <div class="solution-content">
+                        <p>Access array items with <code>[ ]</code>. Remember: counting starts at 0! The first item is <code>colorList[0]</code>. The third item is <code>colorList[2]</code>.</p>
+                    </div>
+                </details>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>let colorList = ["red", "orange", "yellow", "green", "blue"];
+
+await changeColor(colorList[0]); // red
+await moveRight(50);
+await changeColor(colorList[2]); // yellow</code></pre>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="mission-card">
+                <h4>Mission 22: The Rainbow Road</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Looping Through Arrays</strong><br>
+                    This is the most common pattern in programming. Use a <code>for</code> loop from 0 to the array's <code>.length</code>. Inside the loop, use the counter <code>i</code> to get each item: <code>myArray[i]</code>.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Create the <code>colorList</code> array from the last mission.</li>
+                    <li>Write a <code>for</code> loop that runs <code>colorList.length</code> times.</li>
+                    <li>Inside the loop:
+                        <ul class="list-disc list-inside pl-6">
+                            <li>Get the current color: <code>let color = colorList[i];</code></li>
+                            <li><code>await changeColor(color)</code></li>
+                            <li><code>await moveRight(50)</code></li>
+                        </ul>
+                    </li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>let colorList = ["red", "orange", "yellow", "green", "blue"];
+
+for (let i = 0; i < colorList.length; i++) {
+  let color = colorList[i];
+  await changeColor(color);
+  await moveRight(50);
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="mission-card">
+                <h4>Mission 23: The Enemy Bot</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Objects</strong><br>
+                    An <code>Object</code> stores related data in <code>key: value</code> pairs, using curly braces <code>{ }</code>. It's like a custom variable container. You access data with "dot notation" (e.g., <code>myObject.key</code>).</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Create an object <code>enemy</code>.</li>
+                    <li>Give it three keys: <code>name: "Goblin"</code>, <code>color: "green"</code>, <code>emoji: "👺"</code>.</li>
+                    <li>Use the object's properties to:
+                        <ul class="list-disc list-inside pl-6">
+                            <li><code>await say("A " + enemy.name + " appears!")</code></li>
+                            <li><code>await changeColor(enemy.color)</code></li>
+                            <li><code>await changeCharacter(enemy.emoji)</code></li>
+                        </ul>
+                    </li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>let enemy = {
+  name: "Goblin",
+  color: "green",
+  emoji: "👺"
+};
+
+await say("A " + enemy.name + " appears!");
+await changeColor(enemy.color);
+await changeCharacter(enemy.emoji);</code></pre>
+                    </div>
+                </details>
+            </div>
+
+            <div class="mission-card">
+                <h4>Mission 24: The Enemy Horde</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Arrays of Objects</strong><br>
+                    This is the ultimate data structure! It's an array <code>[ ]</code> where each item in the list is a complex object <code>{ }</code>. This lets you store your entire game's data.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Create an <code>enemyList</code> array.</li>
+                    <li>Inside it, put two objects:
+                        <ul class="list-disc list-inside pl-6">
+                            <li><code>{ name: "Slime", color: "lime" }</code></li>
+                            <li><code>{ name: "Bat", color: "purple" }</code></li>
+                        </ul>
+                    </li>
+                    <li>Loop through the <code>enemyList</code> (using <code>.length</code>).</li>
+                    <li>Inside the loop, get the <code>let currentEnemy = enemyList[i];</code></li>
+                    <li><code>await say(currentEnemy.name)</code></li>
+                    <li><code>await changeColor(currentEnemy.color)</code></li>
+                    <li><code>await moveRight(75)</code></li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>let enemyList = [
+  { name: "Slime", color: "lime" },
+  { name: "Bat", color: "purple" }
+];
+
+for (let i = 0; i < enemyList.length; i++) {
+  let currentEnemy = enemyList[i];
+  await say(currentEnemy.name);
+  await changeColor(currentEnemy.color);
+  await moveRight(75);
+}</code></pre>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="mission-card">
+                <h4>Mission 25: The Coin Hunter</h4>
+                <div class="concept-box">
+                    <p><strong>Concept: Functions Returning Objects</strong><br>
+                    The <code>await getCoinPos()</code> command returns an object with <code>x</code> and <code>y</code> properties, like <code>{ x: 150, y: 200 }</code>. You can store this and use its properties.</p>
+                </div>
+                <h3 class="!text-gray-800">Your Mission</h3>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>Call <code>await getCoinPos()</code> and store the result in a variable <code>coin</code>.</li>
+                    <li><code>await say("The coin is at x: " + coin.x)</code>.</li>
+                    <li><code>await moveRight(coin.x)</code>.</li>
+                    <li><code>await moveDown(coin.y)</code>.</li>
+                    <li><code>await say("Got the coin!")</code>.</li>
+                </ol>
+                <details class="solution">
+                    <summary>Click to see Solution</summary>
+                    <div class="solution-content">
+<pre><code>// Reset position just in case
+await moveRight(0);
+await moveDown(0);
+
+let coin = await getCoinPos();
+
+await say("The coin is at x: " + coin.x);
+await watch("Coin", coin); // Good for debugging!
+
+await moveRight(coin.x);
+await moveDown(coin.y);
+
+await say("Got the coin!");</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="text-center py-6 mt-8 text-gray-600 no-print">
+        <p>Code Quest Worksheet | Generated by Gemini</p>
+    </footer>
+
+    <script>
+        // --- Print Button Logic ---
+        document.getElementById('print-btn').addEventListener('click', () => {
+            window.print();
+        });
+
+        // --- This script contains the LaTeX code for the download button ---
+        const latexContentBooklet = `
+\\documentclass[11pt, a4paper]{article}
+
+% --- PREAMBLE ---
+\\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=2cm, right=2cm]{geometry}
+\\usepackage{fontspec}
+\\usepackage[english, bidi=basic, provide=*]{babel}
+\\babelprovide[import, onchar=ids fonts]{english}
+\\babelfont{rm}{Noto Sans}
+\\babelfont{sf}{Noto Sans}
+\\babelfont{tt}{Noto Sans Mono}
+
+% Core Packages
+\\usepackage{amsmath}
+\\usepackage{enumitem}
+\\usepackage[dvipsnames]{xcolor}
+\\usepackage{setspace}
+\\usepackage{graphicx}
+\\usepackage{listings}
+\\usepackage[most]{tcolorbox}
+\\usepackage{fancyhdr}
+\\usepackage{hyperref}
+
+% --- STYLING ---
+
+% Line spacing
+\\onehalfspacing
+
+% Section Formatting
+\\usepackage{titlesec}
+\\titleformat{\\section}{\\normalfont\\Large\\bfseries\\color{RoyalBlue}}{\\thesection.}{1em}{}
+\\titleformat{\\subsection}{\\normalfont\\large\\bfseries\\color{MidnightBlue}}{}{0em}{}
+\\titleformat{\\subsubsection}{\\normalfont\\normalsize\\bfseries\\color{DarkSlateGray}}{}{0em}{}
+\\titlespacing*{\\section}{0pt}{20pt}{10pt}
+\\titlespacing*{\\subsection}{0pt}{15pt}{5pt}
+
+% Header/Footer
+\\pagestyle{fancy}
+\\fancyhf{}
+\\fancyhead[L]{Code Quest: JavaScript Booklet}
+\\fancyfoot[C]{\\thepage}
+\\renewcommand{\\headrulewidth}{0.4pt}
+\\renewcommand{\\footrulewidth}{0.4pt}
+
+% Hyperlinks
+\\hypersetup{
+    colorlinks=true,
+    linkcolor=MidnightBlue,
+    urlcolor=RoyalBlue,
+    pdftitle={Code Quest Booklet},
+    pdfauthor={Code Quest},
+}
+
+% Code Listings Style
+\\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\\definecolor{codeblue}{rgb}{0,0.6,1}
+\\definecolor{codegreen}{rgb}{0.1,0.6,0.1}
+\\definecolor{codestring}{rgb}{0.8,0.2,0.5}
+\\definecolor{codekeyword}{rgb}{0.9,0.5,0.1}
+\\definecolor{codebackground}{rgb}{0.97,0.97,0.97}
+
+\\lstdefinestyle{jsstyle}{
+    language=JavaScript,
+    basicstyle=\\ttfamily\\small,
+    keywordstyle=\\color{codekeyword}\\bfseries,
+    stringstyle=\\color{codestring},
+    commentstyle=\\color{codegray}\\itshape,
+    numberstyle=\\tiny\\color{codegray},
+    numbers=left,
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\\color{codebackground},
+    showspaces=false,
+    showstringspaces=false,
+    tabsize=2,
+    breaklines=true,
+    breakatwhitespace=true,
+    morekeywords={await, async, let, function, return, const, if, else, for, while, true, false, break, Number}
+}
+\\lstset{style=jsstyle}
+
+% Colored Box Styles
+\\newtcolorbox{conceptbox}{
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    fonttitle=\\bfseries,
+    coltitle=black,
+    title=Concept,
+    boxsep=5pt,
+    left=5pt,
+    right=5pt,
+    top=2pt,
+    bottom=5pt
+}
+
+\\newtcolorbox{missionbox}{
+    colback=gray!10!white,
+    colframe=gray!50!black,
+    fonttitle=\\bfseries\\large,
+    coltitle=black,
+    boxsep=10pt,
+    top=10pt,
+    bottom=10pt,
+    breakable
+}
+
+% --- DOCUMENT ---
+\\begin{document}
+
+\\title{
+    \\vspace{0.5cm}
+    \\bfseries\\color{RoyalBlue}
+    Code Quest: JavaScript Booklet
+    \\\\[0.5cm]
+    \\mdseries\\Large
+    A Worksheet for Student Coders
+}
+\\author{The Code Quest Bot}
+\\date{\\today}
+\\maketitle
+\\thispagestyle{fancy}
+\\tableofcontents
+
+\\newpage
+
+\\section*{Introduction}
+\\thispagestyle{fancy}
+Welcome to the Code Quest workshop! This guide contains 25 missions across 5 sections to test your JavaScript skills. Each mission uses functions from the "Code Quest" game.
+
+Remember the most important rule: because our game functions have animations, you must use the \\texttt{await} keyword before calling them!
+\\begin{lstlisting}
+// Example
+await say("I'm ready to code!");
+\\end{lstlisting}
+Read the concept, then the mission, and try to write the code. If you get stuck, check the clues. After you've tried, check your answer in the solutions. Good luck, Coder!
+
+\\newpage
+
+% --- SECTION 1: VARIABLES & DATA TYPES ---
+\\section{Variables \& Data Types}
+\\addcontentsline{toc}{section}{Section 1: Variables \& Data Types}
+Learn to store and use different types of information.
+
+% Mission 1
+\\begin{missionbox}[title=Mission 1: The Greeter Bot]
+\\begin{conceptbox}
+A \\texttt{let} variable stores information. A \\texttt{String} is text, wrapped in quotes (\\texttt{"Hello"}). You can join strings with \\texttt{+}.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Asks the user for their name (\\texttt{await ask(...)}) and store it in a variable called \\texttt{playerName}.
+    \\item Uses the \\texttt{say()} command to greet the user by name (e.g., "Hello, Ada!").
+\\end{enumerate}
+
+\\subsubsection*{Clue}
+\\begin{tcolorbox}[colback=yellow!10, colframe=yellow!75!black, boxsep=5pt, top=2pt, bottom=5pt]
+To join a string and a variable, use: \\texttt{"Hello, " + playerName}
+\\end{tcolorbox}
+
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+let playerName = await ask("What is your name?");
+await say("Hello, " + playerName + "!");
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 2
+\\begin{missionbox}[title=Mission 2: The Step Counter]
+\\begin{conceptbox}
+\\texttt{Number} data types are just digits (e.g., \\texttt{50}, \\texttt{100}) with no quotes. You can use math operators (\\texttt{+*} /) to calculate new values.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Create a variable \\texttt{baseMove} and set it to \\texttt{50}.
+    \\item Create a variable \\texttt{longMove} and set it to \\texttt{baseMove * 3}.
+    \\item Make the robot move right by \\texttt{longMove} steps.
+    \\item Make the robot move down by \\texttt{baseMove} steps.
+\\end{enumerate}
+
+\\subsubsection*{Clue}
+\\begin{tcolorbox}[colback=yellow!10, colframe=yellow!75!black, boxsep=5pt, top=2pt, bottom=5pt]
+Use the variable names, not the numbers, inside the move commands: \\texttt{await moveRight(longMove);}
+\\end{tcolorbox}
+
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+let baseMove = 50;
+let longMove = baseMove * 3;
+
+await moveRight(longMove);
+await moveDown(baseMove);
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 3
+\\begin{missionbox}[title=Mission 3: The Watcher]
+\\begin{conceptbox}
+The \\texttt{await watch(label, value)} command prints a variable's value to the "Execution Step" window. It's essential for debugging.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Create a variable \\texttt{magicNumber} and set it to \\texttt{77}.
+    \\item Use \\texttt{watch()} to display this number. The label should be "Magic Number".
+    \\item Change the robot's color to "purple".
+    \\item Change \\texttt{magicNumber} to \\texttt{magicNumber * 2}.
+    \\item Use \\texttt{watch()} again to show its new value, labeled "New Number".
+\\end{enumerate}
+
+\\subsubsection*{Clue}
+\\begin{tcolorbox}[colback=yellow!10, colframe=yellow!75!black, boxsep=5pt, top=2pt, bottom=5pt]
+The first watch command will look like: \\texttt{await watch("Magic Number", magicNumber);}
+\\end{tcolorbox}
+
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+let magicNumber = 77;
+await watch("Magic Number", magicNumber);
+await changeColor("purple");
+
+magicNumber = magicNumber * 2;
+await watch("New Number", magicNumber);
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 4
+\\begin{missionbox}[title=Mission 4: The Annoying Bot]
+\\begin{conceptbox}
+You can add (concatenate) strings and variables together multiple times to build complex sentences.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Ask the user for their favorite color. Store it in \\texttt{favColor}.
+    \\item Ask the user for their favorite food. Store it in \\texttt{favFood}.
+    \\item Use \\texttt{say()} to say "Your favorite color is [color] and you like [food]!"
+    \\item Use \\texttt{say()} again to say "I don't like [color] or [food]."
+\\end{enumerate}
+
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+let favColor = await ask("Favorite color?");
+let favFood = await ask("Favorite food?");
+
+await say("Your favorite color is " + favColor + " and you like " + favFood + "!");
+await say("I don't like " + favColor + " or " + favFood + ".");
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 5
+\\begin{missionbox}[title=Mission 5: Full Reset]
+\\begin{conceptbox}
+You can change the value of a \\texttt{let} variable at any time by simply assigning it a new value.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Change the character's emoji to "🚀".
+    \\item Move right 100 steps.
+    \\item Change the character's emoji to "💥".
+    \\item Change the color to "red".
+    \\item Use \\texttt{say()} to say "Error! Resetting!".
+    \\item Change the emoji back to "🤖" and the color back to "gold".
+\\end{enumerate}
+
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+await changeCharacter("🚀");
+await moveRight(100);
+await changeCharacter("💥");
+await changeColor("red");
+await say("Error! Resetting!");
+await changeCharacter("🤖");
+await changeColor("gold");
+\\end{lstlisting}
+\\end{missionbox}
+
+\\newpage
+% --- SECTION 2: FUNCTIONS ---
+\\section{Functions}
+\\addcontentsline{toc}{section}{Section 2: Functions}
+Learn to create reusable, powerful blocks of code.
+
+% Mission 6
+\\begin{missionbox}[title=Mission 6: The Jumper]
+\\begin{conceptbox}
+A \\texttt{function} is a reusable block of code. If your function uses any \\texttt{await} commands, you must declare it as an \\texttt{async function}.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Define a new \\texttt{async function} called \\texttt{jump()}.
+    \\item Inside \\texttt{jump()}, make the robot move up 50 steps, then down 50 steps.
+    \\item Call your \\texttt{await jump()} function.
+    \\item Move right 100 steps.
+    \\item Call \\texttt{await jump()} again.
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+async function jump() {
+  await moveUp(50);
+  await moveDown(50);
+}
+
+await jump();
+await moveRight(100);
+await jump();
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 7
+\\begin{missionbox}[title=Mission 7: The Square Drawer]
+\\begin{conceptbox}
+A \\textbf{parameter} (e.g., \\texttt{size}) is a variable you put in your function's definition. It lets you pass in a value (an "argument") when you call the function, making it flexible.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Define an \\texttt{async function} called \\texttt{drawSquare(size)} that accepts one parameter.
+    \\item Inside, use the \\texttt{size} parameter to move right, down, left, and up.
+    \\item Call \\texttt{await drawSquare(100);} to draw a big square.
+    \\item Call \\texttt{await drawSquare(25);} to draw a small square.
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+async function drawSquare(size) {
+  await moveRight(size);
+  await moveDown(size);
+  await moveLeft(size);
+  await moveUp(size);
+}
+
+await drawSquare(100);
+await drawSquare(25);
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 8
+\\begin{missionbox}[title=Mission 8: The Colorful Mover]
+\\begin{conceptbox}
+You can add as many parameters as you need, separated by commas.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Define an \\texttt{async function} called \\texttt{moveAndPaint(distance, newColor)}.
+    \\item Inside, it should move right by \\texttt{distance}, then change color to \\texttt{newColor}.
+    \\item Call it with \\texttt{100} and \\texttt{"blue"}.
+    \\item Call it with \\texttt{50} and \\texttt{"green"}.
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+async function moveAndPaint(distance, newColor) {
+  await moveRight(distance);
+  await changeColor(newColor);
+}
+
+await moveAndPaint(100, "blue");
+await moveAndPaint(50, "green");
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 9
+\\begin{missionbox}[title=Mission 9: The Prize Giver]
+\\begin{conceptbox}
+Functions can give data back using the \\texttt{return} keyword. If the function *only* does a calculation (no \\texttt{await}), it does *not* need to be \\texttt{async}.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Create a \\textbf{normal} function \\texttt{calculatePrize(name)}.
+    \\item Inside, make it \\texttt{return} the string \\texttt{"A coin for " + name + "!"}.
+    \\item In your main code, \\texttt{await ask()} for a name.
+    \\item Call your \\texttt{calculatePrize()} function and store the result in a \\texttt{message} variable.
+    \\item \\texttt{await say()} the \\texttt{message}.
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+function calculatePrize(name) {
+  return "A coin for " + name + "!";
+}
+
+let playerName = await ask("What's your name?");
+let message = calculatePrize(playerName);
+await say(message);
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 10
+\\begin{missionbox}[title=Mission 10: The Smart Calculator]
+\\begin{conceptbox}
+You can use \\texttt{await} to get values, pass them to a normal function, and then use the returned value in another \\texttt{await} command.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Create a normal function \\texttt{add(num1, num2)} that returns \\texttt{num1 + num2}.
+    \\item \\texttt{await ask()} for a number. Store it in \\texttt{val1}. (It will be a string)
+    \\item \\texttt{await ask()} for a second number. Store it in \\texttt{val2}. (It will be a string)
+    \\item Call \\texttt{add(val1, val2)} and store the result in \\texttt{sum}.
+    \\item \\texttt{await say()} the \\texttt{sum}. (What happens? Is it what you expected?)
+\\end{enumerate}
+\\subsubsection*{Clue}
+\\begin{tcolorbox}[colback=yellow!10, colframe=yellow!75!black, boxsep=5pt, top=2pt, bottom=5pt]
+The \\texttt{ask()} function returns a string. When you use \\texttt{+} on strings, it joins them ("5" + "5" = "55"). To fix this, you must convert the strings to numbers using \\texttt{Number(val1)}. Try \\texttt{add(Number(val1), Number(val2))}.
+\\end{tcolorbox}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+// This function is correct.
+function add(num1, num2) {
+  return num1 + num2;
+}
+
+let val1 = await ask("Enter first number:");
+let val2 = await ask("Enter second number:");
+
+// The bug: val1 and val2 are strings!
+// "5" + "5" = "55" (concatenation)
+let sum = add(val1, val2);
+await say("The result is: " + sum);
+
+// The Fix:
+// let sum = add(Number(val1), Number(val2));
+// await say("The *real* sum is: " + sum);
+\\end{lstlisting}
+\\end{missionbox}
+
+\\newpage
+% --- SECTION 3: LOGIC & CONDITIONALS ---
+\\section{Logic \& Conditionals}
+\\addcontentsline{toc}{section}{Section 3: Logic \& Conditionals}
+Teach your robot how to make decisions.
+
+% Mission 11
+\\begin{missionbox}[title=Mission 11: The Bouncer Bot]
+\\begin{conceptbox}
+An \\texttt{if (...) \\{ ... \\}} statement only runs the code in the \\texttt{\\{ \\}} if the condition in the \\texttt{(...)} is true. We use "comparison operators" like \\texttt{===} (is equal to) to check.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Create a variable \\texttt{password} and set it to \\texttt{"open sesame"}.
+    \\item \\texttt{await ask()} the user for the password. Store their answer in \\texttt{guess}.
+    \\item Write an \\texttt{if} statement that checks if \\texttt{guess === password}.
+    \\item Inside the \\texttt{if} block, make the robot say "Welcome!" and change color to "green".
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+let password = "open sesame";
+let guess = await ask("What's the password?");
+
+if (guess === password) {
+  await say("Welcome!");
+  await changeColor("green");
+}
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 12
+\\begin{missionbox}[title=Mission 12: The Bouncer Bot 2.0]
+\\begin{conceptbox}
+An \\texttt{else \\{ ... \\}} block can be added after an \\texttt{if}. The \\texttt{else} code runs *only* if the \\texttt{if} condition was false.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Use the same code from Mission 11.
+    \\item Add an \\texttt{else} block after the \\texttt{if}.
+    \\item Inside the \\texttt{else} block, make the robot say "Go away!" and change color to "red".
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+let password = "open sesame";
+let guess = await ask("What's the password?");
+
+if (guess === password) {
+  await say("Welcome!");
+  await changeColor("green");
+} else {
+  await say("Go away!");
+  await changeColor("red");
+}
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 13
+\\begin{missionbox}[title=Mission 13: Wall Detector]
+\\begin{conceptbox}
+The \\texttt{await isTouchingWall()} command is special. It's a "boolean" function: it *returns* either \\texttt{true} or \\texttt{false}. You can use it directly inside an \\texttt{if} statement.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Move left by 100 steps (to hit the wall).
+    \\item Call \\texttt{await isTouchingWall()} and store the result in a variable \\texttt{touching}.
+    \\item Write an \\texttt{if} statement that checks \\texttt{if (touching === true)}.
+    \\item Inside the \\texttt{if}, \\texttt{say()} "Ouch! A wall!"
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+await moveLeft(100);
+
+let touching = await isTouchingWall();
+
+if (touching === true) {
+  await say("Ouch! A wall!");
+}
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 14
+\\begin{missionbox}[title=Mission 14: The Escape Artist]
+\\begin{conceptbox}
+You can chain multiple checks together. \\texttt{if} (check 1), then \\texttt{else if} (check 2), then \\texttt{else} (if neither was true).
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item \\texttt{await ask()} "Which way? (up, down, or side)". Store in \\texttt{direction}.
+    \\item If \\texttt{direction === "up"}, then \\texttt{moveUp(100)}.
+    \\item \\texttt{else if} \\texttt{direction === "down"}, then \\texttt{moveDown(100)}.
+    \\item \\texttt{else} (if it's not up or down), \\texttt{say("I can't go that way!")}.
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+let direction = await ask("Which way? (up, down, or side)");
+
+if (direction === "up") {
+  await moveUp(100);
+} else if (direction === "down") {
+  await moveDown(100);
+} else {
+  await say("I can't go that way!");
+}
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 15
+\\begin{missionbox}[title=Mission 15: The Treasure Hunter]
+\\begin{conceptbox}
+Use \\texttt{\&} (AND) to check if *two* conditions are true at the same time. \\texttt{if (condition1 \&\& condition2)}.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item \\texttt{await ask()} for a password. Store in \\texttt{pass}.
+    \\item \\texttt{await ask()} for a key number. Store in \\texttt{key}.
+    \\item Write an \\texttt{if} statement that checks if \\texttt{pass === "open"} AND \\texttt{key === "123"}.
+    \\item If both are true, \\texttt{say("Treasure unlocked!")}.
+    \\item \\texttt{else}, \\texttt{say("You're missing something.")}.
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+let pass = await ask("Password?");
+let key = await ask("Key number?");
+
+if (pass === "open" && key === "123") {
+  await say("Treasure unlocked!");
+} else {
+  await say("You're missing something.");
+}
+\\end{lstlisting}
+\\end{missionbox}
+
+\\newpage
+% --- SECTION 4: LOOPS ---
+\\section{For Loops}
+\\addcontentsline{toc}{section}{Section 4: For Loops}
+Learn to repeat your actions automatically.
+
+% Mission 16
+\\begin{missionbox}[title=Mission 16: The Annoying Bot 2.0]
+\\begin{conceptbox}
+A \\texttt{for} loop repeats a block of code a specific number of times. The code \\texttt{for (let i = 0; i < 4; i++) \\{ ... \\}} runs the code in the \\texttt{\\{ \\}} exactly 4 times.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Write a \\texttt{for} loop that runs 5 times.
+    \\item Inside the loop, make the robot \\texttt{say("Are we there yet?")}.
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+for (let i = 0; i < 5; i++) {
+  await say("Are we there yet?");
+}
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 17
+\\begin{missionbox}[title=Mission 17: The Staircase]
+\\begin{conceptbox}
+You can put any code inside a loop, including multiple \\texttt{await} commands. The loop will wait for each one to finish before continuing.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Write a \\texttt{for} loop that runs 4 times.
+    \\item Inside the loop, move right 100, then move down 100.
+    \\item This will draw a 4-step staircase.
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+// This draws a 4-step staircase
+for (let i = 0; i < 4; i++) {
+  await moveRight(100);
+  await moveDown(100);
+}
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 18
+\\begin{missionbox}[title=Mission 18: The Slinky]
+\\begin{conceptbox}
+Combining loops and functions you've written is the key to complex programs.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item First, define the \\texttt{async function jump()} from Mission 6.
+    \\item Write a \\texttt{for} loop that runs 3 times.
+    \\item Inside the loop, \\texttt{await jump()} and then \\texttt{await moveRight(50)}.
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+// First, define the function
+async function jump() {
+  await moveUp(50);
+  await moveDown(50);
+}
+
+// Now, use it in a loop
+for (let i = 0; i < 3; i++) {
+  await jump();
+  await moveRight(50);
+}
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 19
+\\begin{missionbox}[title=Mission 19: The Growing Steps]
+\\begin{conceptbox}
+The variable \\texttt{i} in your loop (\\texttt{let i = 0}) is a real number you can use! It will be \\texttt{0}, then \\texttt{1}, then \\texttt{2}, etc.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Write a \\texttt{for} loop that runs 5 times (\\texttt{i} from 0 to 4).
+    \\item Inside the loop, move right by \\texttt{i * 25} steps.
+    \\item (The first move is 0*25=0, the second is 1*25=25, etc.)
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+for (let i = 0; i < 5; i++) {
+  // i will be 0, 1, 2, 3, 4
+  await watch("i is", i);
+  await moveRight(i * 25);
+  await moveDown(25); // Added to see it better
+}
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 20
+\\begin{missionbox}[title=Mission 20: The Wall Banger]
+\\begin{conceptbox}
+A \\texttt{while(condition) \\{ ... \\}} loop runs *forever* as long as the condition is true. A \\texttt{while(true)} loop runs until you manually \\texttt{break;} out of it.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Start a loop: \\texttt{while (true) \\{ ... \\}}.
+    \\item Inside the loop, move left by 25 steps.
+    \\item Check \\texttt{if (await isTouchingWall())}.
+    \\item If it is, \\texttt{say("I hit it!")} and use the \\texttt{break;} command to stop the loop.
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+while (true) {
+  await moveLeft(25);
+  
+  let touching = await isTouchingWall();
+  
+  if (touching === true) {
+    await say("I hit it!");
+    break; // Stop the loop
+  }
+}
+\\end{lstlisting}
+\\end{missionbox}
+
+\\newpage
+% --- SECTION 5: ARRAYS & OBJECTS ---
+\\section{Arrays \& Objects}
+\\addcontentsline{toc}{section}{Section 5: Arrays \& Objects}
+Store and manage complex collections of data.
+
+% Mission 21
+\\begin{missionbox}[title=Mission 21: The Rainbow Bot]
+\\begin{conceptbox}
+An \\texttt{Array} is a list of items stored in a single variable, using square brackets \\texttt{[ ]}. E.g., \\texttt{let colors = ["red", "green", "blue"];}
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Create an array \\texttt{colorList} containing: "red", "orange", "yellow", "green", "blue".
+    \\item Use \\texttt{await changeColor()} to change the robot's color to the *first* item in the list.
+    \\item Use \\texttt{await changeColor()} again to change to the *third* item.
+\\end{enumerate}
+\\subsubsection*{Clue}
+\\begin{tcolorbox}[colback=yellow!10, colframe=yellow!75!black, boxsep=5pt, top=2pt, bottom=5pt]
+Access array items with \\texttt{[ ]}. Remember: counting starts at 0! The first item is \\texttt{colorList[0]}. The third item is \\texttt{colorList[2]}.
+\\end{tcolorbox}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+let colorList = ["red", "orange", "yellow", "green", "blue"];
+
+await changeColor(colorList[0]); // red
+await moveRight(50);
+await changeColor(colorList[2]); // yellow
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 22
+\\begin{missionbox}[title=Mission 22: The Rainbow Road]
+\\begin{conceptbox}
+Use a \\texttt{for} loop from 0 to the array's \\texttt{.length}. Inside the loop, use the counter \\texttt{i} to get each item: \\texttt{myArray[i]}.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Create the \\texttt{colorList} array from the last mission.
+    \\item Write a \\texttt{for} loop that runs \\texttt{colorList.length} times.
+    \\item Inside the loop:
+    \\begin{itemize}
+        \\item Get the current color: \\texttt{let color = colorList[i];}
+        \\item \\texttt{await changeColor(color)}
+        \\item \\texttt{await moveRight(50)}
+    \\end{itemize}
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+let colorList = ["red", "orange", "yellow", "green", "blue"];
+
+for (let i = 0; i < colorList.length; i++) {
+  let color = colorList[i];
+  await changeColor(color);
+  await moveRight(50);
+}
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 23
+\\begin{missionbox}[title=Mission 23: The Enemy Bot]
+\\begin{conceptbox}
+An \\texttt{Object} stores related data in \\texttt{key: value} pairs, using curly braces \\texttt{\\{ \\}}. Access data with "dot notation" (e.g., \\texttt{myObject.key}).
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Create an object \\texttt{enemy}.
+    \\item Give it three keys: \\texttt{name: "Goblin"}, \\texttt{color: "green"}, \\texttt{emoji: "👺"}.
+    \\item Use the object's properties to:
+    \\begin{itemize}
+        \\item \\texttt{await say("A " + enemy.name + " appears!")}
+        \\item \\texttt{await changeColor(enemy.color)}
+        \\item \\texttt{await changeCharacter(enemy.emoji)}
+    \\end{itemize}
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+let enemy = {
+  name: "Goblin",
+  color: "green",
+  emoji: "👺"
+};
+
+await say("A " + enemy.name + " appears!");
+await changeColor(enemy.color);
+await changeCharacter(enemy.emoji);
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 24
+\\begin{missionbox}[title=Mission 24: The Enemy Horde]
+\\begin{conceptbox}
+An \\texttt{Array of Objects} is an array \\texttt{[ ]} where each item in the list is a complex object \\texttt{\\{ \\}}.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Create an \\texttt{enemyList} array.
+    \\item Inside it, put two objects:
+    \\begin{itemize}
+        \\item \\texttt{\\{ name: "Slime", color: "lime" \\}}
+        \\item \\texttt{\\{ name: "Bat", color: "purple" \\}}
+    \\end{itemize}
+    \\item Loop through the \\texttt{enemyList} (using \\texttt{.length}).
+    \\item Inside the loop, get the \\texttt{let currentEnemy = enemyList[i];}
+    \\item \\texttt{await say(currentEnemy.name)}
+    \\item \\texttt{await changeColor(currentEnemy.color)}
+    \\item \\texttt{await moveRight(75)}
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+let enemyList = [
+  { name: "Slime", color: "lime" },
+  { name: "Bat", color: "purple" }
+];
+
+for (let i = 0; i < enemyList.length; i++) {
+  let currentEnemy = enemyList[i];
+  await say(currentEnemy.name);
+  await changeColor(currentEnemy.color);
+  await moveRight(75);
+}
+\\end{lstlisting}
+\\end{missionbox}
+
+% Mission 25
+\\begin{missionbox}[title=Mission 25: The Coin Hunter]
+\\begin{conceptbox}
+The \\texttt{await getCoinPos()} command returns an object with \\texttt{x} and \\texttt{y} properties, like \\texttt{\\{ x: 150, y: 200 \\}}.
+\\end{conceptbox}
+\\subsubsection*{Your Mission}
+\\begin{enumerate}
+    \\item Call \\texttt{await getCoinPos()} and store the result in a variable \\texttt{coin}.
+    \\item \\texttt{await say("The coin is at x: " + coin.x)}.
+    \\item \\texttt{await moveRight(coin.x)}.
+    \\item \\texttt{await moveDown(coin.y)}.
+    \\item \\texttt{await say("Got the coin!")}.
+\\end{enumerate}
+\\subsubsection*{Solution}
+\\begin{lstlisting}
+// Reset position just in case
+await moveRight(0);
+await moveDown(0);
+
+let coin = await getCoinPos();
+
+await say("The coin is at x: " + coin.x);
+await watch("Coin", coin); // Good for debugging!
+
+await moveRight(coin.x);
+await moveDown(coin.y);
+
+await say("Got the coin!");
+\\end{lstlisting}
+\\end{missionbox}
+
+
+\\end{document}
+`;
+
+        // --- Download Button Logic ---
+        document.getElementById('download-tex-btn').addEventListener('click', () => {
+            const blob = new Blob([latexContentBooklet], { type: 'text/x-latex' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'code_quest_booklet.tex'; // Set the file name
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
